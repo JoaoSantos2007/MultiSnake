@@ -1,4 +1,4 @@
-![Logo](file:///home/joao/.app/Snake/snake.png)
+![Logo](https://github.com/JoaoSantos2007/Snake_WEB/blob/main/assets/Snake.png)
 
 
 # Snake_WEB

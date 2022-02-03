@@ -1,45 +1,52 @@
+/* Body */
 body{
     background: rgb(200,200,200);
     position: absolute;
     width: 100%;
     height: 100%;
+    font-size: 16px;
 }
 
-header{
-    position: absolute;
-    left: 50%;
-    margin-right: -50%;
-    margin-top: 32px;
-    /* text-align: center; */
+
+/* Header */
+header > p{
+    font-size: 3em;
     font-weight: bold;
-    font-size: 32px;
     color: red;
-    
+    width: 3em;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 3%;
 }
 
-div{
-    position: absolute;
-    left: 85%;
-    background: grey;
-    width: 15%;
+
+/* Score */
+.score_section{
+    position: fixed;
+    left: 80%;
+    background: darkorange;
+    width: 20%;
     height: 60px;
 }
 
-div p{
+.score_section p{
     text-align: center;
     color: white;
-    font-size: 32px;
-    padding-top: 14px;
+    font-weight: bold;
+    padding-top: 9px;
+    font-size: 3em;
 }
 
+
+/* Snake Display */
 canvas{
     position: absolute;
     top: 50%;
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);
-    width: 75%;
-    height: 75%;
+    width: 65%;
+    height: 65%;
     border: 3px solid #000000;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
@@ -47,6 +54,8 @@ canvas{
     background: rgb(110, 180, 255);
 }
 
+
+/* Button Start */
 .btn_start{
     position: absolute;
     top: 95%;
@@ -61,4 +70,56 @@ canvas{
     background: rgb(179, 252, 69);
     border: none;
     cursor: pointer;
+    transition: 550ms;
+}
+
+.btn_start:hover{
+    width: 200px;
+    height: 70px;
+}
+
+
+/* Hide GamePad */
+.hide_gamepad{
+    position: absolute;
+    top: 72.5%;
+    margin-left: 25px;
+    width: 240px;
+    text-align: center;
+}
+
+.hide_gamepad input{
+    height: 27px;
+    width: 27px;
+}
+
+.hide_gamepad label{
+    font-size: 27px;
+}
+
+
+/* GamePad */
+.gamepad{
+    position: absolute;
+    top: 95%;
+    margin-left: 25px;
+    transform: translate(-10%, -90%);
+    text-align: center;
+}
+
+.gamepad img{
+    cursor: pointer;
+    height: 42px;
+    width: 42px;
+    padding: 10px 10px;
+}
+
+
+/* Cell Phone */
+@media screen and (max-width:600px){
+    .btn_start{
+        width: 120px;
+        font-size: 2em;
+        left: 80%;
+    }
 }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang='pt-BR'>
+    <head>
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Snake</title> 
+        <script src="/socket.io/socket.io.js"></script>
+        <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" type="text/css" href="reset.css">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-analytics.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-firestore.js"></script>
+    </head>
+    
+    <body>
+        <header>
+            <section id="score_section" class="score_section">
+                <p id="score_text">Score: 0</p>
+            </section>
+            <p>Snake</p>
+        </header>
+        
+
+        <canvas></canvas>
+
+        <input id="btn" class="btn_start" type="button" value="Start" onclick='start_game()'>
+
+        <div class="hide_gamepad">
+            <input type="checkbox" id='hide_gamepad_checkbox' onchange="update_gamepad()">
+            <label for="hide_gamepad_checkbox">Hide Gamepad</label>
+        </div>
+
+        <div id="gamepad" class="gamepad">
+            <img src="assets/up-arrow.png" alt="" onclick="setKey('ArrowUp')">
+            <br>
+            <img src="assets/left-arrow.png" alt="" onclick="setKey('ArrowLeft')">
+            <img src="assets/arrow-down.png" alt="" onclick="setKey('ArrowDown')">
+            <img src="assets/arrow-right.png" alt="" onclick="setKey('ArrowRight')">
+        </div>
+    </body>
+    
+    <script src="script.js"></script>
+</html>

@@ -78,19 +78,19 @@ let score = 0
 
 
 //Games musics
-const music_game = new Audio('assets/game.mp3')
+const music_game = new Audio('../../assets/game.mp3')
 function music() {
     music_game.play()
     music_game.loop = true
 }
 
-const audio_food = new Audio('assets/food.mp3')
+const audio_food = new Audio('../../assets/food.mp3')
 function music_food(){
     audio_food.play()
     audio_food.loop = false
 }
 
-const audio_end = new Audio('assets/end.mp3')
+const audio_end = new Audio('../../assets/end.mp3')
 function music_end(){
     audio_end.play()
     audio_end.loop = false
@@ -104,7 +104,7 @@ function standard_screen(){
     img.onload = function(){
         tela.drawImage(img,0,0,tela.canvas.width,tela.canvas.height)
     }
-    img.src = 'assets/snake.png'
+    img.src = '../../assets/snake.png'
 }
 
 function limparTela(){

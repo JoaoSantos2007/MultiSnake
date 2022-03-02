@@ -8,13 +8,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Snake</title> 
         <script src="/socket.io/socket.io.js"></script>
-        <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
         <link rel="stylesheet" type="text/css" href="reset.css">
-        <link rel="stylesheet" type="text/css" href="style.css">
-        <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-analytics.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-auth.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-firestore.js"></script>
+        <link rel="stylesheet" type="text/css" href="multplayer.css">
     </head>
     
     <body>
@@ -36,13 +32,14 @@
         </div>
 
         <div id="gamepad" class="gamepad">
-            <img src="assets/up-arrow.png" alt="" onclick="setKey('ArrowUp')">
+            <img src="up-arrow.png" alt="" onclick="setKey('ArrowUp')">
             <br>
-            <img src="assets/left-arrow.png" alt="" onclick="setKey('ArrowLeft')">
-            <img src="assets/arrow-down.png" alt="" onclick="setKey('ArrowDown')">
-            <img src="assets/arrow-right.png" alt="" onclick="setKey('ArrowRight')">
+            <img src="left-arrow.png" alt="" onclick="setKey('ArrowLeft')">
+            <img src="arrow-down.png" alt="" onclick="setKey('ArrowDown')">
+            <img src="arrow-right.png" alt="" onclick="setKey('ArrowRight')">
         </div>
     </body>
     
-    <script src="script.js"></script>
+    <script src="socket.js"></script>
+    <script src="multplayer.js"></script>
 </html>

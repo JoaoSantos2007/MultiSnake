@@ -1,3 +1,5 @@
+const socket = io()
+
 let to_select_game = false
 
 function select_game(){
@@ -7,7 +9,7 @@ function select_game(){
 
     if(to_select_game){
         div.style.display = 'block'
-        btn_to_play.value = 'Cancel'
+        btn_to_play.value = 'Back'
     }else{
         div.style.display = 'none'
         btn_to_play.value = 'Play'
@@ -16,6 +18,6 @@ function select_game(){
 }
 
 function play(mode){
-    window.location.href = '../gameModes/local/index.html'
+    socket.emit('play',mode)
     console.log(mode)
 }

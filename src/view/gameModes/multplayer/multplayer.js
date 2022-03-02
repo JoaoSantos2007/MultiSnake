@@ -23,9 +23,9 @@ const socket = io()
 let game = {}
 
 //Games musics
-const music_game = new Audio('../../assets/game.mp3')
-const audio_food = new Audio('../../assets/food.mp3')
-const audio_end = new Audio('../../assets/end.mp3')
+const music_game = new Audio('game.mp3')
+const audio_food = new Audio('food.mp3')
+const audio_end = new Audio('end.mp3')
 
 
 //Key
@@ -55,7 +55,7 @@ function standard_screen(){
     img.onload = function(){
         tela.drawImage(img,0,0,tela.canvas.width,tela.canvas.height)
     }
-    img.src = '../../assets/snake.png'
+    img.src = 'snake.png'
 }
 standard_screen()
 

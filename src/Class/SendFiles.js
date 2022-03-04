@@ -3,6 +3,10 @@ function SendFiles(webApp,path) {
         res.sendFile(path + '/view/lobby/lobby.html')
     })
 
+    webApp.get('/checkUser.js', function (req, res) {
+        res.sendFile(path + '/scripts/checkUser.js')
+    })
+
     webApp.get('/lobby.js', function (req, res) {
         res.sendFile(path + '/view/lobby/lobby.js')
     })

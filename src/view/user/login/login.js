@@ -1,5 +1,3 @@
-const socket = io()
-
 function login(){
     const email = window.document.getElementById('email').value
     const password = window.document.getElementById('password').value

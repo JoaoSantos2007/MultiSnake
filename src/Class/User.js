@@ -1,6 +1,6 @@
 class User{
-    constructor(socketId,email = null){
-        this.socketId = socketId,
+    constructor(socketID,email = null){
+        this.socketID = socketID,
         this.email = email
     }
 }

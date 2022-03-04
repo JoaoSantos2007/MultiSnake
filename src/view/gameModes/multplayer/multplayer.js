@@ -17,9 +17,6 @@ if(width < height){
     update_gamepad()
 }
 
-
-
-const socket = io()
 let game = {}
 
 //Games musics
@@ -67,14 +64,14 @@ function limparTela(){
 function renderGame(){
 
     tela.fillStyle = 'rgb(110, 180, 255)'
-    tela.fillRect(0,0,game.canvasWidth,game.canvasHeight)
+    tela.fillRect(0,0,300,150)
 
     Object.keys(game.players).forEach((key) => {
         var player = game.players[key]
         for(var i = 0;i < player.positions.length;i++){
             tela.fillStyle = '#000000'
             tela.globalAlpha = 0.1
-            tela.fillRect(player.positions[i][0],player.positions[i][1],game.objectWidth,game.objectHeight)
+            tela.fillRect(player.positions[i][0],player.positions[i][1],10,10)
         }
     });
 
@@ -82,21 +79,19 @@ function renderGame(){
         var fruit = game.fruits[key]
         tela.fillStyle = "rgb(0,255,0)"
         tela.globalAlpha = 1
-        tela.fillRect(fruit.x,fruit.y,game.objectWidth,game.objectHeight)
+        tela.fillRect(fruit.x,fruit.y,10,10)
     });
 
-    const currentPlayer = game.players[socket.id]
-    for(var i = 0;i < currentPlayer.positions.length;i++){
-        tela.fillStyle = "rgb(255,0,0)"
-        tela.globalAlpha = 1
-        tela.fillRect(currentPlayer.positions[i][0],currentPlayer.positions[i][1],game.objectWidth,game.objectHeight)
+    for(i in game.players){
+        if(game.players[i].socketID == String(localStorage.getItem("socketID"))){
+            const currentPlayer = game.players[i]
+            for(var i = 0;i < currentPlayer.positions.length;i++){
+                tela.fillStyle = "rgb(255,0,0)"
+                tela.globalAlpha = 1
+                tela.fillRect(currentPlayer.positions[i][0],currentPlayer.positions[i][1],10,10)
+            }
+        }
     }
-    
-
-   
-    
-    
-    //console.log("Score: " + currentPlayer.score)
 
 }
 
@@ -107,7 +102,7 @@ socket.on('current_connections', (tot_players) =>{
     console.log(numberPlayers)
 })
 
-socket.on('game-state', (gameState) => {
+socket.on('gameState', (gameState) => {
     game = gameState
     limparTela()
     requestAnimationFrame(renderGame)

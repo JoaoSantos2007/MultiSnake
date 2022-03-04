@@ -1,5 +1,3 @@
-const socket = io()
-
 let to_select_game = false
 
 function select_game(){
@@ -21,3 +19,8 @@ function play(mode){
     socket.emit('play',mode)
     console.log(mode)
 }
+
+socket.on('goMultplayer',() =>{
+    console.log('Game Started!')
+    window.location.href = '/multplayer'
+})

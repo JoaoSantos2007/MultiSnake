@@ -8,34 +8,13 @@ webServer.listen(3000, function () {
   console.log('> Server listening on port:', 3000)
 });
 
-
-//Firebase
-const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } = require('firebase/auth');
-const { initializeApp } = require('firebase/app')
-const firebaseConfig = require('./assets/firebase.json')
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp)
-
-
 //Other files
 const {SendFiles} = require('./Class/SendFiles.js')
 SendFiles(webApp,__dirname)
 const {Game} = require('./Class/Game.js')
-const {User} = require('./Class/User.js')
+const {Server} = require('./Class/Server.js')
 
-const server = {
-  games: [],
-  users: [],
-  allowKeys: ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'],
-  verifLogin,
-}
-
-function verifLogin(socketId) {
-    const user = auth.currentUser;
-    if (user) {
-      return(true)
-    }  
-  }
+const server = new Server
 
 
 
@@ -47,63 +26,55 @@ setInterval(() => {
 
 
 io.on('connection', function (socket) {
-  server.users.push(new User(socket.id))
-  console.log(server.users)
 
+  //Set Socket ID
+  socket.on('setSocketID',(socketID) => {
+    socket.id = socketID
+    server.syncUser(socket.id)    
+  })
+  //Define Socket ID in a cookie
+  socket.on('getSocketID',() => {
+    socket.emit('defineSocketID',(socket.id))
+  })
 
+  
+  //Enter a game
   socket.on('play',(gameMode) =>{
     let findGame = false
     for(i in server.games){
-      if(server.games[i].type == gameMode && server.games[i].players.length < 5 && findGame != true){
-        server.games[i].addPlayer(socket.id)
+      if(server.games[i].type == gameMode && server.games[i].players.length < 6 && findGame != true && time < 0){
+        server.games[i].addPlayer(socket)
         findGame = true
       }
     }
+
     if(findGame != true){
       const random_gameId = Math.floor(Math.random() * 100000000000)
-      let newGame = new Game(gameMode)
-      newGame.addPlayer(socket.id)
+      let newGame = new Game(gameMode,random_gameId)
+      newGame.addPlayer(socket)
       server.games.push(newGame)
+      
     }
 
     console.log(server.games)
   })
 
 
-  // socket.on('changeKey', (key) => {
-  //   //Verif key
-  //   let new_direction = null
-  //   if (teclas_permitidas.includes(key)) {
-  //     if (key === 'w' || key === 'ArrowUp') {
-  //       new_direction = 'up'
-  //     } else if (key === 's' || key === 'ArrowDown') {
-  //       new_direction = 'down'
-  //     } else if (key === 'a' || key === 'ArrowLeft') {
-  //       new_direction = 'left'
-  //     } else if (key === 'd' || key === 'ArrowRight') {
-  //       new_direction = 'right'
-  //     } else {
-  //       return
-  //     }
-
-  //     if (new_direction != game.players[socket.id].direction && new_direction != null) {
-  //       game.players[socket.id].direction = new_direction
-  //     }
-  //   }
-
-  socket.on('login', (array) => {
-    signInWithEmailAndPassword(auth, array[0], array[1]).then(() => {
-      if(server.verifLogin(socket.id)){
-        socket.emit('logged',[array[0], array[1]])
+  socket.on('changeKey', (key) => {
+    //Verif key
+    if (server.allowKeys.includes(key)) {
+      for(i in server.games){
+        for(x in server.games[i].socketIds){
+          if(server.games[i].socketIds[x] == socket.id){
+            server.games[i].changeKey(key,socket.id)
+          }
+        }
       }
-    }).catch((e) => {
-      socket.emit('error-login', e)
-    });
-
+    }
   })
 
+
+
   socket.on('disconnect', () => {
-    // game.removePlayer(socket.id)
-    //socket.broadcast.emit('player-remove', socket.id)
   })
 })

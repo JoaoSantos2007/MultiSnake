@@ -1,21 +1,38 @@
 class Game {
-    constructor(gameMode) {
-        this.players = [],
-            this.fruits = {},
-            this.type = gameMode;
+    constructor(gameMode,id) {
+        this.type = gameMode,
+        this.id = id,
+        this.sockets = [],
+        this.socketIds = [],
+        this.players = {},
+        this.fruits = {},
+        this.time = -10,
+        this.stage = 'waitPlayers',
+        this.updateGame = setInterval(() => {
+            this.main()
+        },150),
+
+        this.verifStartGame()   
     }
 
     main() {
-        for (const socketId in this.socket_ids) {
-            this.movePlayer(this.socket_ids[socketId])
-            this.verif_end(this.socket_ids[socketId])
+        for(const i in this.players){
+            this.movePlayer(i)
+            this.verifEnd(i)
+            
         }
-        io.emit('game-state', game)
+
+        for(const i in this.sockets){
+            this.sockets[i].emit('gameState',{
+                "players": this.players,
+                "fruits": this.fruits,
+            })
+        }
     }
 
 
     //Adiciona um jogador
-    addPlayer(socketId) {
+    addPlayer(socket) {
         //retorna um obj
         const player_x = (Math.floor(Math.random() * 30)) * 10
         const player_y = ((Math.floor(Math.random() * 15)) * 10)
@@ -27,26 +44,47 @@ class Game {
             positions: [[player_x, player_y]],
             delete_last_position: true
         }
-        return this.players.push(newPlayer)
+        this.players[socket.id] = newPlayer
+        this.socketIds.push(socket.id)
+        this.sockets.push(socket)
     }
-
-
 
     //Remove um jogador
     removePlayer(socketId) {
         delete this.players[socketId]
-        this.socket_ids.splice(this.socket_ids.indexOf(socketId), 1)
+        // this.socket_ids.splice(this.socket_ids.indexOf(socketId), 1)
     }
 
 
+    changeKey(key,socketID){
+        let newDirection = null
+        if (key === 'w' || key === 'ArrowUp') {
+          newDirection = 'up'
+        } else if (key === 's' || key === 'ArrowDown') {
+          newDirection = 'down'
+        } else if (key === 'a' || key === 'ArrowLeft') {
+          newDirection = 'left'
+        } else if (key === 'd' || key === 'ArrowRight') {
+          newDirection = 'right'
+        } else {
+          return
+        }
+        for(var i in this.players){
+            if(socketID == this.players[i].socketID){
+                if (newDirection != this.players[i].direction && newDirection != null) this.players[i].direction = newDirection
+            }
+        }
 
+
+
+    }
 
     //Move o jogador
-    movePlayer(socketId) {
-        const player = this.players[socketId]
-        const playerWidth = this.objectWidth
-        const playerHeight = this.objectHeight
-        const direction = this.players[socketId].direction
+    movePlayer(socketID) {
+        const player = this.players[socketID]
+        const playerWidth = 10
+        const playerHeight = 10
+        const direction = player.direction
         if (direction == null) return
 
         if (direction === 'left') {
@@ -74,7 +112,7 @@ class Game {
 
         //return player
 
-        this.verif_food(socketId)
+        this.verifFood(socketID)
 
     }
 
@@ -126,23 +164,22 @@ class Game {
         delete this.fruits[fruitId]
     }
 
-    verif_food(socket) {
+    verifFood(socketID) {
         for (var fruitId in this.fruits) {
             const fruit = this.fruits[fruitId]
 
-            for (var socketId in this.players) {
-                const player = this.players[socketId]
+            for (const i in this.players) {
+                const player = this.players[socketID]
                 if (player.x === fruit.x && player.y === fruit.y) {
                     player.score++
                     player.delete_last_position = false
                     this.removeFruit(fruitId)
-                    io.to(socket).emit('play_music', 'food')
                 }
             }
         }
     }
 
-    verif_end(socketId) {
+    verifEnd(socketId) {
         const player = this.players[socketId]
         if (player.x >= 290 || player.x < 0 || player.y >= 150 || player.y < 0) {
             player.direction = null
@@ -152,6 +189,23 @@ class Game {
                 player.direction = null
             }
         }
+    }
+
+
+
+    verifStartGame(){
+        const TimeToStart = setInterval(() => {
+            if(this.time >= 0 && this.stage == 'waitPlayers'){
+                this.stage = 'running'
+                for(const i in this.sockets){
+                    this.sockets[i].emit('goMultplayer')
+                }
+                clearInterval(TimeToStart)
+                clearInterval()
+                
+            }
+        },1000)
+
     }
 }
 

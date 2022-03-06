@@ -10,7 +10,10 @@ class Game {
         this.stage = 'waitPlayers',
         this.updateGame = setInterval(() => {
             this.main()
-        },150),
+        },100),
+        setInterval(()=>{
+            this.addFruit()
+        }, 5000)
 
         this.verifStartGame()   
     }
@@ -69,14 +72,7 @@ class Game {
         } else {
           return
         }
-        for(var i in this.players){
-            if(socketID == this.players[i].socketID){
-                if (newDirection != this.players[i].direction && newDirection != null) this.players[i].direction = newDirection
-            }
-        }
-
-
-
+        if (newDirection != this.players[socketID].direction && newDirection != null) this.players[socketID].direction = newDirection
     }
 
     //Move o jogador
@@ -137,7 +133,7 @@ class Game {
             // }
 
 
-            for (fruitId in this.fruits) {
+            for (const fruitId in this.fruits) {
                 const fruit = this.fruits[fruitId]
                 if (fruit.x === fruitRandomX && fruit.y === fruitRandomY) {
                     return false

@@ -1,4 +1,5 @@
 const {User} = require('./User.js')
+const {Game} = require('./Game.js')
 
 class Server{
     constructor(){
@@ -14,16 +15,16 @@ class Server{
         },1000)
     }
 
-    syncUser(socketID){
+    syncUser(socketID,socket){
         let createNewUser = true
         
         //Verifica se já existe o usuário
         for(const i in this.users){
-            if(this.users[i].socketID === socketID){
+            if(this.users[i].socketID == socketID){
               createNewUser = false
-              for(x in this.games){
-                for(y in this.games[x].sockets){
-                  if(this.games[x].sockets[y].id == socket.id){
+              for(const x in this.games){
+                for(const y in this.games[x].sockets){
+                  if(this.games[x].sockets[y].id == socketID){
                     this.games[x].sockets[y] = socket
                   }
                 }
@@ -32,9 +33,29 @@ class Server{
         }
       
           if(createNewUser){
-            this.users.push(new User(socketID))
+            this.users[socketID] = new User(socketID)
             console.log(this.users)
           }
+    }
+
+    searchGames(gameMode,socket){
+        let findGame = false
+        for(const i in this.games){
+          console.log(i)
+          if(this.games[i].type == gameMode && this.games[i].sockets.length < 6 && findGame != true){
+            this.games[i].addPlayer(socket)
+            findGame = true
+          }
+        }
+    
+        if(findGame != true){
+          const random_gameId = Math.floor(Math.random() * 100000000000)
+          let newGame = new Game(gameMode,random_gameId)
+          newGame.addPlayer(socket)
+          this.games.push(newGame)      
+        }
+    
+        console.log(this.games)
     }
 
 

@@ -82,17 +82,16 @@ function renderGame(){
         tela.fillRect(fruit.x,fruit.y,10,10)
     });
 
-    for(i in game.players){
-        if(game.players[i].socketID == String(localStorage.getItem("socketID"))){
-            const currentPlayer = game.players[i]
-            for(var i = 0;i < currentPlayer.positions.length;i++){
+    Object.keys(game.players).forEach((index) => {
+        if(index == localStorage.getItem("socketID")){
+            const currentPlayer = game.players[index]
+            for(const i in currentPlayer.positions){
                 tela.fillStyle = "rgb(255,0,0)"
                 tela.globalAlpha = 1
                 tela.fillRect(currentPlayer.positions[i][0],currentPlayer.positions[i][1],10,10)
             }
         }
-    }
-
+    });
 }
 
 

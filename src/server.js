@@ -13,13 +13,11 @@ const {SendFiles} = require('./Class/SendFiles.js')
 SendFiles(webApp,__dirname)
 const {Game} = require('./Class/Game.js')
 const {Server} = require('./Class/Server.js')
-
 const server = new Server
 
 setInterval(() => {
   io.emit('current_connections', io.engine.clientsCount)
 }, 5000)
-
 
 
 io.on('connection', function (socket) {
@@ -38,6 +36,11 @@ io.on('connection', function (socket) {
   //Enter a game
   socket.on('play',(gameMode) =>{
     server.searchGames(gameMode,socket)
+  })
+
+  socket.on('exitGame',() =>{
+    console.log('sair')
+    server.quitPlayer(socket.id)
   })
 
 

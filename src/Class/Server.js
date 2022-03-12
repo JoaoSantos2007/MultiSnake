@@ -11,6 +11,8 @@ class Server{
         setInterval(() =>{
             for(const i in this.games){
                 this.games[i].time++
+                this.games[i].sendTime()
+                this.verifGameEnd(this.games[i])
             }
         },1000)
     }
@@ -40,9 +42,9 @@ class Server{
 
     searchGames(gameMode,socket){
         let findGame = false
+        
         for(const i in this.games){
-          console.log(i)
-          if(this.games[i].type == gameMode && this.games[i].sockets.length < 6 && findGame != true){
+          if(this.games[i].type == gameMode && Number((Object.keys(this.games[i].players).length)+1) < 6 && findGame != true && this.games[i].stage == 'waitPlayers'){
             this.games[i].addPlayer(socket)
             findGame = true
           }
@@ -54,9 +56,25 @@ class Server{
           newGame.addPlayer(socket)
           this.games.push(newGame)      
         }
-    
+
         console.log(this.games)
     }
+
+    quitPlayer(socketID){
+      for(const i in this.games){
+        if(this.games[i].socketIds.includes(socketID)){
+          this.games[i].removePlayer(socketID)
+        }
+        
+      }
+    }
+
+    verifGameEnd(game){
+      if(game.time >= 180 || game.alivePlayers.length <= 1){
+        console.log('fim!')
+      }
+    }
+
 
 
 }

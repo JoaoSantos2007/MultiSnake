@@ -1,20 +1,16 @@
+//Cookie socketId
+const socketId = localStorage.getItem("socketID")
 //Width & Heigth
 const width = window.innerWidth
 const height = window.innerHeight
-let btn = window.document.getElementById('btn')
-
 //Canvas
-const canvas = window.document.querySelector('canvas')
+const canvas = window.document.getElementById('canvas')
 let tela = canvas.getContext('2d')
+
 //Ajustar tela se a altura for maior que a largura
 if(width < height){
     canvas.style.width = `${width - 10}px`
     canvas.style.height = `${(width - 3) * 0.764171123}px`
-    window.document.getElementById('score_text').style.fontSize = '16px'
-    window.document.getElementById('score_section').style.height = '40px'
-}else{
-    window.document.getElementById('hide_gamepad_checkbox').setAttribute('checked','true')
-    update_gamepad()
 }
 
 let game = {}
@@ -35,17 +31,6 @@ function setKey(key){
 }
 
 
-//Update Gamepad
-function update_gamepad(){
-    let chekbox = window.document.getElementById('hide_gamepad_checkbox')
-    if(chekbox.checked){
-        window.document.querySelector('.gamepad').style.display = 'none'
-    }else{
-        window.document.querySelector('.gamepad').style.display = 'block'
-    }
-}
-
-
 //Default Image
 function standard_screen(){
     var img = new Image()
@@ -59,6 +44,36 @@ standard_screen()
 
 function limparTela(){
     tela.clearRect(0,0,tela.canvas.width, tela.canvas.height)
+}
+
+function exitGame(){
+    socket.emit('exitGame')
+}
+
+function updatePlayerScore(scoreArray,totPlayers){
+    let scoreTableInnerHTML = `
+        <tr class="header">
+            <td>Top 10 players</td>
+            <td>Score</td>
+        </tr>
+    `
+    scoreArray.forEach((score) => {
+        scoreTableInnerHTML += `
+            <tr class="${socketId === score.socketId ? 'current-player' : ''}">
+                <td class="socket-id">${score.socketId}</td>
+                <td class="score-value">${score.score}</td>
+            </tr>
+        `
+    })
+
+    scoreTableInnerHTML += `
+        <tr class="footer">
+            <td>Total de jogadores</td>
+            <td align="right">${totPlayers}</td>
+        </tr>
+    `
+
+    window.document.getElementById("scoreTable").innerHTML = scoreTableInnerHTML
 }
 
 function renderGame(){
@@ -83,7 +98,7 @@ function renderGame(){
     });
 
     Object.keys(game.players).forEach((index) => {
-        if(index == localStorage.getItem("socketID")){
+        if(index == socketId){
             const currentPlayer = game.players[index]
             for(const i in currentPlayer.positions){
                 tela.fillStyle = "rgb(255,0,0)"
@@ -94,20 +109,20 @@ function renderGame(){
     });
 }
 
-
-
-socket.on('current_connections', (tot_players) =>{
-    let numberPlayers = tot_players
-    console.log(numberPlayers)
-})
-
 socket.on('gameState', (gameState) => {
     game = gameState
     limparTela()
     requestAnimationFrame(renderGame)
+    updatePlayerScore(game.scoreArray,game.totplayers)
 })
 
-socket.on('play_music', (audio_name) => {
+socket.on('updateTime', (time) => {
+    console.log(time.time)
+    const data = new Date(time * 1000)
+    window.document.getElementById('time').innerText = `${data.getMinutes()}:${data.getSeconds()}`
+})
+
+socket.on('playMusic', (audio_name) => {
     switch(audio_name){
         case 'game': 
             music_game.play()

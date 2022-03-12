@@ -12,31 +12,28 @@
         <link rel="stylesheet" type="text/css" href="reset.css">
         <link rel="stylesheet" type="text/css" href="multplayer.css">
     </head>
-    
+
     <body>
         <header>
-            <section id="score_section" class="score_section">
-                <p id="score_text">Score: 0</p>
-            </section>
-            <p>Snake</p>
+            <input type="button" value="Exit" class="exit" onclick="exitGame()">
         </header>
         
-
-        <canvas></canvas>
-
-        <input id="btn" class="btn_start" type="button" value="Start" onclick='start_game()'>
-
-        <div class="hide_gamepad">
-            <input type="checkbox" id='hide_gamepad_checkbox' onchange="update_gamepad()">
-            <label for="hide_gamepad_checkbox">Hide Gamepad</label>
-        </div>
-
+        <main>
+            <section class="content">
+                <canvas id="canvas"></canvas>
+                <div class="gameInformation">
+                    <div class="divTime"><p id="time">3:00</p></div>
+                    <table class="scoreTable" id="scoreTable"></table>
+                </div>
+            </section>
+        </main>
+        
         <div id="gamepad" class="gamepad">
-            <img src="up-arrow.png" alt="" onclick="setKey('ArrowUp')">
+            <img src="up-arrow.png" alt="" onclick="set_key('ArrowUp')">
             <br>
-            <img src="left-arrow.png" alt="" onclick="setKey('ArrowLeft')">
-            <img src="arrow-down.png" alt="" onclick="setKey('ArrowDown')">
-            <img src="arrow-right.png" alt="" onclick="setKey('ArrowRight')">
+            <img src="left-arrow.png" alt="" onclick="set_key('ArrowLeft')">
+            <img src="arrow-down.png" alt="" onclick="set_key('ArrowDown')">
+            <img src="arrow-right.png" alt="" onclick="set_key('ArrowRight')">
         </div>
     </body>
     

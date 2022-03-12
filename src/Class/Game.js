@@ -1,13 +1,16 @@
-class Game {
+class Game{
     constructor(gameMode,id) {
         this.type = gameMode,
         this.id = id,
         this.sockets = [],
         this.socketIds = [],
         this.players = {},
+        this.alivePlayers = [],
         this.fruits = {},
-        this.time = -10,
+        this.time = 0,
         this.stage = 'waitPlayers',
+        this.scoreArray = [],
+        this.totPlayers = 0,
         this.updateGame = setInterval(() => {
             this.main()
         },100),
@@ -29,6 +32,8 @@ class Game {
             this.sockets[i].emit('gameState',{
                 "players": this.players,
                 "fruits": this.fruits,
+                "scoreArray": this.scoreArray,
+                "totplayers": this.totPlayers,
             })
         }
     }
@@ -50,12 +55,27 @@ class Game {
         this.players[socket.id] = newPlayer
         this.socketIds.push(socket.id)
         this.sockets.push(socket)
+        this.alivePlayers.push(socket.id)
+        this.totPlayers++
     }
 
     //Remove um jogador
     removePlayer(socketId) {
+        this.totPlayers--
         delete this.players[socketId]
+        this.alivePlayers.splice(this.alivePlayers.indexOf(socketId), 1);
         // this.socket_ids.splice(this.socket_ids.indexOf(socketId), 1)
+    }
+    
+
+    verifKey(direction,newDirection){
+        let keyValid = true
+        if((direction === 'up' || direction === 'down') && (newDirection === 'up' || newDirection === 'down')){
+          keyValid = false
+        }else if((direction === 'left' || direction === 'right') && (newDirection === 'left' || newDirection === 'right')){
+          keyValid = false
+        }
+        return(keyValid)
     }
 
 
@@ -72,7 +92,10 @@ class Game {
         } else {
           return
         }
-        if (newDirection != this.players[socketID].direction && newDirection != null) this.players[socketID].direction = newDirection
+
+        if(this.verifKey(this.players[socketID].direction,newDirection)){
+            if (newDirection != this.players[socketID].direction && newDirection != null) this.players[socketID].direction = newDirection
+        }
     }
 
     //Move o jogador
@@ -163,45 +186,76 @@ class Game {
     verifFood(socketID) {
         for (var fruitId in this.fruits) {
             const fruit = this.fruits[fruitId]
-
-            for (const i in this.players) {
-                const player = this.players[socketID]
-                if (player.x === fruit.x && player.y === fruit.y) {
-                    player.score++
-                    player.delete_last_position = false
-                    this.removeFruit(fruitId)
-                }
+            const player = this.players[socketID]
+            if (player.x === fruit.x && player.y === fruit.y) {
+                player.score++
+                this.updateScore()
+                this.removeFruit(fruitId)
+                player.delete_last_position = false
             }
         }
     }
 
-    verifEnd(socketId) {
-        const player = this.players[socketId]
-        if (player.x >= 290 || player.x < 0 || player.y >= 150 || player.y < 0) {
-            player.direction = null
+    updateScore(){
+        const previewScoreArray = []
+        for(const socketId in this.players) {
+            const player = this.players[socketId]
+            previewScoreArray.push({
+                socketId: socketId,
+                score: player.score
+            })
         }
-        for (var i = 0; i < player.positions.length - 1; i++) {
-            if (player.positions[i][0] == player.x && player.positions[i][1] == player.y) {
-                player.direction = null
+
+        const scoreArraySorted = previewScoreArray.sort((first, second) => {
+            if (first.score < second.score) {
+                return 1
             }
-        }
+
+            if (first.score > second.score) {
+                return -1
+            }
+
+            return 0
+        })
+
+        this.scoreArray = scoreArraySorted.slice(0, 10)
+    }
+
+    verifEnd() {
+
+
+        // const player = this.players[socketId]
+        // if (player.x >= 300 || player.x < 0 || player.y >= 150 || player.y < 0) {
+        //     player.direction = null
+        // }
+        // for (var i = 0; i < player.positions.length - 1; i++) {
+        //     if (player.positions[i][0] == player.x && player.positions[i][1] == player.y) {
+        //         player.direction = null
+        //     }
+        // }
     }
 
 
 
     verifStartGame(){
-        const TimeToStart = setInterval(() => {
-            if(this.time >= 0 && this.stage == 'waitPlayers'){
+        let TimeToStart = 0
+        const intervalTimeToStart = setInterval(() => {
+            TimeToStart ++
+            if(TimeToStart > 10 && this.stage == 'waitPlayers'){
                 this.stage = 'running'
                 for(const i in this.sockets){
                     this.sockets[i].emit('goMultplayer')
                 }
-                clearInterval(TimeToStart)
-                clearInterval()
-                
+                clearInterval(intervalTimeToStart)
             }
         },1000)
 
+    }
+
+    sendTime(){
+        for(const i in this.sockets){
+            this.sockets[i].emit('updateTime',(this.time))
+        }
     }
 }
 

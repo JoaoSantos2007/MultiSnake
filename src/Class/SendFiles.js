@@ -30,6 +30,21 @@ function SendFiles(webApp,path) {
 
 
 
+    webApp.get('/local', function (req, res) {
+        res.sendFile(path + '/view/gameModes/local/local.html')
+    })
+
+
+    webApp.get('/local.js', function (req, res) {
+        res.sendFile(path + '/view/gameModes/local/local.js')
+    })
+
+    webApp.get('/local.css', function (req, res) {
+        res.sendFile(path + '/view/gameModes/local/local.css')
+    })
+
+
+
     webApp.get('/login', function (req, res) {
         res.sendFile(path + '/view/user/login/login.html')
     })

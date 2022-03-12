@@ -1,6 +1,6 @@
 /* Body */
 body{
-    background: rgb(200,200,200);
+    background: rgb(170,170,170);
     position: absolute;
     width: 100%;
     height: 100%;
@@ -8,38 +8,21 @@ body{
 }
 
 
-/* Header */
-header > p{
-    font-size: 3em;
-    font-weight: bold;
-    color: red;
-    width: 3em;
-    margin-left: auto;
-    margin-right: auto;
-    padding-top: 3%;
-}
-
-
-/* Score */
-.score_section{
-    position: fixed;
-    left: 80%;
-    background: darkorange;
-    width: 20%;
-    height: 60px;
-}
-
-.score_section p{
-    text-align: center;
+.exit{
+    width: 250px;
+    height: 75px;
+    border: none;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background: red;
     color: white;
+    font-size: 42px;
     font-weight: bold;
-    padding-top: 9px;
-    font-size: 3em;
+    cursor: pointer;
 }
 
-
-/* Snake Display */
-canvas{
+.content{
     position: absolute;
     top: 50%;
     left: 50%;
@@ -47,58 +30,105 @@ canvas{
     transform: translate(-50%, -50%);
     width: 65%;
     height: 65%;
-    border: 3px solid #000000;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-    image-rendering: -moz-crisp-edges;
-}
-
-
-/* Button Start */
-.btn_start{
-    position: absolute;
-    top: 95%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
-    width: 180px;
-    height: 53px;
-    font-size: 32px;
-    color: white;
-    font-weight: bold;
-    background: rgb(179, 252, 69);
-    border: none;
-    cursor: pointer;
-    transition: 550ms;
-}
-
-.btn_start:hover{
-    width: 200px;
-    height: 70px;
-}
-
-
-/* Hide GamePad */
-.hide_gamepad{
-    position: absolute;
-    top: 72.5%;
-    margin-left: 25px;
-    width: 240px;
+    box-shadow: 0px 4px 17px 0px rgba(0,0,0,0.19);
     text-align: center;
 }
 
-.hide_gamepad input{
-    height: 27px;
-    width: 27px;
+/* Snake Display */
+canvas{
+    margin-right: 0px;
+    width: 80%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    background: rgb(110, 180, 255);
+    display: inline-block;
+    margin-right: -3.5px;
 }
 
-.hide_gamepad label{
-    font-size: 27px;
+.gameInformation{
+    width: calc(20% - 2px);
+    height: 100%;
+    display: inline-block;
+    vertical-align: top;
+    background: white;
+    text-align: center;
+}
+
+.divTime{
+    display: inline-block;
+    background: #dfc30e;
+    width: 100%;
+    height: 64px;
+    margin-bottom: 30px
+}
+
+.divTime p{
+    position: relative;
+    color: white;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    font-size: 42px;
+}
+
+
+
+/* Score Table */
+.scoreTable {
+    display: inline-block;
+    font-size: 13px;
+    font-family: Arial
+}
+
+.scoreTable tr.header td {
+    border-bottom: 1px solid #CCC;
+    padding-bottom: 8px;
+}
+
+.scoreTable tr.footer td {
+    border-top: 1px solid #CCC;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.scoreTable tr.footer .nPlayers{
+    color: rgb(15, 201, 15);
+    font-size: 20px;
+}
+
+.scoreTable td {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.scoreTable .socket-id {
+    font-weight: normal;
+    color: #222;
+    width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block
+}
+
+.scoreTable .score-value {
+    font-weight: bold;
+    color: #000;
+    text-align: right;
+}
+
+.current-player .score-value,.current-player .socket-id{
+    color: #bdaa27;
 }
 
 
 /* GamePad */
 .gamepad{
+    display: none;
     position: absolute;
     top: 95%;
     margin-left: 25px;

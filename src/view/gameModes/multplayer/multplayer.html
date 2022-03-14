@@ -23,18 +23,23 @@
                 <canvas id="canvas"></canvas>
                 <div class="gameInformation">
                     <div class="divTime"><p id="time">3:00</p></div>
-                    <table class="scoreTable" id="scoreTable"></table>
+                    <table class="scoreTable" id="scoreTable">
+                        <tr class="header">
+                            <td>Top 10 players</td>
+                            <td>Score</td>
+                        </tr>
+                    </table>
                 </div>
             </section>
+
+            <div id="gamepad" class="gamepad">
+                <img src="up-arrow.png" alt="" onclick="set_key('ArrowUp')">
+                <br>
+                <img src="left-arrow.png" alt="" onclick="set_key('ArrowLeft')">
+                <img src="arrow-down.png" alt="" onclick="set_key('ArrowDown')">
+                <img src="arrow-right.png" alt="" onclick="set_key('ArrowRight')">
+            </div>
         </main>
-        
-        <div id="gamepad" class="gamepad">
-            <img src="up-arrow.png" alt="" onclick="set_key('ArrowUp')">
-            <br>
-            <img src="left-arrow.png" alt="" onclick="set_key('ArrowLeft')">
-            <img src="arrow-down.png" alt="" onclick="set_key('ArrowDown')">
-            <img src="arrow-right.png" alt="" onclick="set_key('ArrowRight')">
-        </div>
     </body>
     
     <script src="checkUser.js"></script>

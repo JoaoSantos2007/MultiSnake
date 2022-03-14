@@ -1,35 +1,86 @@
-//Cookie socketId
-const socketId = localStorage.getItem("socketID")
-//Width & Heigth
-const width = window.innerWidth
-const height = window.innerHeight
+let game = {}
+
+//Obter Tecla pressionada
+document.onkeydown = getKey
+//Definir Tecla pressionada
+function getKey(event){
+    setKey(event.key)   
+}
+
+//Games musics
+const audioGame = new Audio('game.mp3')
+const audioFood = new Audio('food.mp3')
+const audioEnd = new Audio('end.mp3')
+
 //Canvas
 const canvas = window.document.getElementById('canvas')
 let tela = canvas.getContext('2d')
 
+//Width & Heigth
+const width = window.innerWidth
+const height = window.innerHeight
 //Ajustar tela se a altura for maior que a largura
 if(width < height){
     canvas.style.width = `${width - 10}px`
     canvas.style.height = `${(width - 3) * 0.764171123}px`
 }
 
-let game = {}
+/* ************** */
+/* Enviar Eventos */
+/* ************** */
 
-//Games musics
-const music_game = new Audio('game.mp3')
-const audio_food = new Audio('food.mp3')
-const audio_end = new Audio('end.mp3')
-
-
-//Key
-document.onkeydown = get_key
-function get_key(event){
-    setKey(event.key)   
-}
+//Enviar tecla pressionada para servidor
 function setKey(key){
     socket.emit('changeKey',key)
 }
 
+//Enviar pedido de sair do jogo para servidor
+function exitGame(){
+    socket.emit('exitGame')
+}
+
+
+/* ************** */
+/* Receber Eventos */
+/* ************** */
+
+//Receber Estado do jogo
+socket.on('gameState', (gameState) => {
+    game = gameState
+    limparTela()
+    requestAnimationFrame(renderGame)
+})
+
+//Atualizar tempo
+socket.on('updateTime', (time) => {
+    console.log(time.time)
+    const data = new Date(time * 1000)
+    window.document.getElementById('time').innerText = `${data.getMinutes()}:${data.getSeconds()}`
+})
+
+//Atualizar pontos
+socket.on('updateScore', (updatedScore) =>{
+    updatePlayerScore(updatedScore.scoreArray,updatedScore.totPlayers)
+})
+
+//Rodar Audios do jogo
+socket.on('playMusic', (audioName) => {
+    switch(audioName){
+        case 'game': 
+            audioGame.play()
+            audioGame.loop = true
+            break
+        case 'food':
+            audioFood.play()
+            break
+    }
+    
+})
+
+
+function limparTela(){
+    tela.clearRect(0,0,tela.canvas.width, tela.canvas.height)
+}
 
 //Default Image
 function standard_screen(){
@@ -42,40 +93,8 @@ function standard_screen(){
 standard_screen()
 
 
-function limparTela(){
-    tela.clearRect(0,0,tela.canvas.width, tela.canvas.height)
-}
 
-function exitGame(){
-    socket.emit('exitGame')
-}
-
-function updatePlayerScore(scoreArray,totPlayers){
-    let scoreTableInnerHTML = `
-        <tr class="header">
-            <td>Top 10 players</td>
-            <td>Score</td>
-        </tr>
-    `
-    scoreArray.forEach((score) => {
-        scoreTableInnerHTML += `
-            <tr class="${socketId === score.socketId ? 'current-player' : ''}">
-                <td class="socket-id">${score.socketId}</td>
-                <td class="score-value">${score.score}</td>
-            </tr>
-        `
-    })
-
-    scoreTableInnerHTML += `
-        <tr class="footer">
-            <td>Total de jogadores</td>
-            <td align="right">${totPlayers}</td>
-        </tr>
-    `
-
-    window.document.getElementById("scoreTable").innerHTML = scoreTableInnerHTML
-}
-
+//Renderizar o jogo
 function renderGame(){
 
     tela.fillStyle = 'rgb(110, 180, 255)'
@@ -98,7 +117,7 @@ function renderGame(){
     });
 
     Object.keys(game.players).forEach((index) => {
-        if(index == socketId){
+        if(index == socketID){
             const currentPlayer = game.players[index]
             for(const i in currentPlayer.positions){
                 tela.fillStyle = "rgb(255,0,0)"
@@ -109,29 +128,24 @@ function renderGame(){
     });
 }
 
-socket.on('gameState', (gameState) => {
-    game = gameState
-    limparTela()
-    requestAnimationFrame(renderGame)
-    updatePlayerScore(game.scoreArray,game.totplayers)
-})
+//Atualizar a tabela de pontos e jogadores no jogo
+function updatePlayerScore(scoreArray,totPlayers){
+    let scoreTableInnerHTML
+    scoreArray.forEach((score) => {
+        scoreTableInnerHTML += `
+            <tr class="${socketID === score.socketId ? 'current-player' : ''}">
+                <td class="socket-id">${score.socketId}</td>
+                <td class="score-value">${score.score}</td>
+            </tr>
+        `
+    })
 
-socket.on('updateTime', (time) => {
-    console.log(time.time)
-    const data = new Date(time * 1000)
-    window.document.getElementById('time').innerText = `${data.getMinutes()}:${data.getSeconds()}`
-})
+    scoreTableInnerHTML += `
+        <tr class="footer">
+            <td>Total de jogadores</td>
+            <td align="right">${totPlayers}</td>
+        </tr>
+    `
 
-socket.on('playMusic', (audio_name) => {
-    switch(audio_name){
-        case 'game': 
-            music_game.play()
-            music_game.loop = true
-            break
-        case 'food':
-            audio_food.play()
-            
-            break
-    }
-    
-})
+    window.document.getElementById("scoreTable").innerHTML = scoreTableInnerHTML
+}

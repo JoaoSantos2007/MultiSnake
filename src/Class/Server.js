@@ -63,7 +63,7 @@ class Server{
     quitPlayer(socketID){
       for(const i in this.games){
         if(this.games[i].socketIds.includes(socketID)){
-          this.games[i].removePlayer(socketID)
+          this.games[i].playerExit(socketID)
         }
         
       }

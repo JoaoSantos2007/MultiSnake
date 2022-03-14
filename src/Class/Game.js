@@ -2,38 +2,40 @@ class Game{
     constructor(gameMode,id) {
         this.type = gameMode,
         this.id = id,
+        this.stage = 'waitPlayers',
+        this.time = 0,
+
         this.sockets = [],
         this.socketIds = [],
+        
         this.players = {},
         this.alivePlayers = [],
-        this.fruits = {},
-        this.time = 0,
-        this.stage = 'waitPlayers',
-        this.scoreArray = [],
         this.totPlayers = 0,
+
+        this.fruits = {},
+        this.scoreArray = [],
+        
         this.updateGame = setInterval(() => {
             this.main()
         },100),
-        setInterval(()=>{
+
+        this.generateFruits = setInterval(()=>{
             this.addFruit()
         }, 5000)
 
-        this.verifStartGame()   
+        this.startGame()   
     }
 
     main() {
-        for(const i in this.players){
-            this.movePlayer(i)
-            this.verifEnd(i)
-            
+        for(const socketID in this.players){
+            this.movePlayer(socketID)
+            this.verifPlayerEnd(socketID)
         }
 
         for(const i in this.sockets){
             this.sockets[i].emit('gameState',{
                 "players": this.players,
                 "fruits": this.fruits,
-                "scoreArray": this.scoreArray,
-                "totplayers": this.totPlayers,
             })
         }
     }
@@ -41,32 +43,54 @@ class Game{
 
     //Adiciona um jogador
     addPlayer(socket) {
-        //retorna um obj
-        const player_x = (Math.floor(Math.random() * 30)) * 10
-        const player_y = ((Math.floor(Math.random() * 15)) * 10)
-        const newPlayer = {
-            x: player_x,
-            y: player_y,
+        const playerX = (Math.floor(Math.random() * 30)) * 10
+        const playerY = ((Math.floor(Math.random() * 15)) * 10)
+        this.players[socket.id] = {
+            x: playerX,
+            y: playerY,
             direction: null,
+            positions: [[playerX, playerY]],
             score: 0,
-            positions: [[player_x, player_y]],
-            delete_last_position: true
+            scored: false
         }
-        this.players[socket.id] = newPlayer
-        this.socketIds.push(socket.id)
         this.sockets.push(socket)
+        this.socketIds.push(socket.id)
+        
         this.alivePlayers.push(socket.id)
         this.totPlayers++
     }
 
-    //Remove um jogador
-    removePlayer(socketId) {
+    //Verifica se o jogador perdeu
+    verifPlayerEnd(socketId) {
+        const player = this.players[socketId]
+        let playerLost = false
+        if (player.x >= 300 || player.x < 0 || player.y >= 150 || player.y < 0) {
+            playerLost = true
+        }
+        for (var i = 0; i < player.positions.length - 1; i++) {
+            if (player.positions[i][0] == player.x && player.positions[i][1] == player.y) {
+                playerLost = true
+            }
+        }
+        if(playerLost){
+
+        }
+    }
+
+    //Jogador perdeu
+    playerLost(socketId){
+        this.alivePlayers.splice(this.alivePlayers.indexOf(socketId), 1);
+    }
+
+    playerExit(socketId){
         this.totPlayers--
         delete this.players[socketId]
-        this.alivePlayers.splice(this.alivePlayers.indexOf(socketId), 1);
-        // this.socket_ids.splice(this.socket_ids.indexOf(socketId), 1)
+        this.playerLost(socketId)
+        this.socketIds.splice(this.socketIds.indexOf(socketId,1))
+        this.sockets.splice(this.sockets.indexOf(socketId,1))
     }
     
+
 
     verifKey(direction,newDirection){
         let keyValid = true
@@ -123,17 +147,17 @@ class Game{
         }
 
         player.positions.push([player.x, player.y])
-        if (player.delete_last_position) {
+        if (player.scored != true) {
             player.positions.splice(0, 1)
         } else {
-            player.delete_last_position = true
+            player.scored = false
         }
 
-        //return player
-
         this.verifFood(socketID)
-
+        this.verifPlayerEnd(socketID)
     }
+
+
 
 
 
@@ -142,45 +166,24 @@ class Game{
         const fruitRandomId = Math.floor(Math.random() * 10000000)
         let fruitRandomX = null
         let fruitRandomY = null
-        let valid_food_position = null
+        let validPosition = null //Fruta posição valida
         do {
-            valid_food_position = true
+            validPosition = true
             fruitRandomX = (Math.floor(Math.random() * 30)) * 10
             fruitRandomY = (Math.floor(Math.random() * 15)) * 10
-
-
-            // for(var i = 0;i < positions.length;i++){
-            //     if(n1 == positions[i][0] && n2 == positions[i][1]){
-            //         valid_food_position = false
-            //     }
-            // }
-
 
             for (const fruitId in this.fruits) {
                 const fruit = this.fruits[fruitId]
                 if (fruit.x === fruitRandomX && fruit.y === fruitRandomY) {
-                    return false
+                    validPosition = false
                 }
             }
-        } while (valid_food_position != true)
-
-
+        } while (validPosition != true)
 
         this.fruits[fruitRandomId] = {
             x: fruitRandomX,
             y: fruitRandomY
         }
-
-        return {
-            fruitId: fruitRandomId,
-            x: fruitRandomX,
-            y: fruitRandomY
-        }
-
-    }
-
-    removeFruit(fruitId) {
-        delete this.fruits[fruitId]
     }
 
     verifFood(socketID) {
@@ -189,12 +192,19 @@ class Game{
             const player = this.players[socketID]
             if (player.x === fruit.x && player.y === fruit.y) {
                 player.score++
+                player.scored = true
                 this.updateScore()
                 this.removeFruit(fruitId)
-                player.delete_last_position = false
+                
             }
         }
     }
+
+    removeFruit(fruitId) {
+        delete this.fruits[fruitId]
+    }
+
+
 
     updateScore(){
         const previewScoreArray = []
@@ -219,25 +229,17 @@ class Game{
         })
 
         this.scoreArray = scoreArraySorted.slice(0, 10)
-    }
-
-    verifEnd() {
-
-
-        // const player = this.players[socketId]
-        // if (player.x >= 300 || player.x < 0 || player.y >= 150 || player.y < 0) {
-        //     player.direction = null
-        // }
-        // for (var i = 0; i < player.positions.length - 1; i++) {
-        //     if (player.positions[i][0] == player.x && player.positions[i][1] == player.y) {
-        //         player.direction = null
-        //     }
-        // }
+        for(const index in this.sockets){
+            this.sockets[index].emit('updateScore',({
+                totPlayers: this.totPlayers,
+                scoreArray: this.scoreArray
+            }))
+        }
     }
 
 
 
-    verifStartGame(){
+    startGame(){
         let TimeToStart = 0
         const intervalTimeToStart = setInterval(() => {
             TimeToStart ++
@@ -249,7 +251,6 @@ class Game{
                 clearInterval(intervalTimeToStart)
             }
         },1000)
-
     }
 
     sendTime(){

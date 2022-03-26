@@ -28,7 +28,7 @@ class Game{
         const playerX = (Math.floor(Math.random() * 30)) * 10
         const playerY = ((Math.floor(Math.random() * 15)) * 10)
 
-        this[socket.id] += {
+        this.players[socket.id] = {
             socket: socket,
             x: playerX,
             y: playerY,
@@ -157,7 +157,7 @@ class Game{
                 this.updateScore()
                 for(const socket in this.sockets){
                     if(socket.id == socketID){
-                        this.sockets[i].emit('playMusic',('food'))
+                        this.sendMessage('playMusic',('food'))
                     }
                 }
                 this.removeFruit(fruitId)
@@ -255,12 +255,10 @@ class Game{
         })
 
         this.scoreArray = scoreArraySorted.slice(0, 10)
-        for(const index in this.sockets){
-            this.sockets[index].emit('updateScore',({
-                totPlayers: this.totPlayers,
-                scoreArray: this.scoreArray
-            }))
-        }
+        this.sendMessage('updateScore',({
+            totPlayers: this.totPlayers,
+            scoreArray: this.scoreArray
+        }))
     }
 
 
@@ -279,28 +277,20 @@ class Game{
             }
     
             //Envia informações do jogo aos players
-            for(const socketID in this.players){                
-                this.players[socketID]['socket'].emit('gameState',getGameState())
-            }
+            this.sendMessage('gameState',this.getGameState())
         }
     }
 
     sendTime(){
-        for(const socketID in this.players){
-            this.players[socketID].socket.emit('updateTime',(this.time))
-        }
+        this.sendMessage('updateTime',(this.time))
     }
 
     goLobby(socketID = null){
-        if(socketID === null){
-            for(const socketIds in this.players){
-                this.players[socketIds]['socket'].emit('goLobby')
-            }
+        if(socketID !== null){
+            this.sendMessage('goLobby','',socketID)
         }else{
-            this.players[socketID].socket.emit('goLobby')
-            
+            this.sendMessage('goLobby')
         }
-
     }
 
 
@@ -320,18 +310,14 @@ class Game{
                 //  Set Pre Game Stage
                 this.stage = 'pre-game'
                 //  Redirect players to game
-                for(const socketID in this.players){
-                    this.players[socketID].socket.emit('goMultplayer')
-                }
+                this.sendMessage('goMultplayer')
                 clearInterval(intervalTimeToStart)
                 
                 //Execute Pre Stage
                 let countdownTime = 5
                 //CountDown to start game
                 const countdownInterval = setInterval(() => {
-                    for(const socketID in this.players){
-                        this.players[socketID]['socket'].emit('countdown',(countdownTime))
-                    }
+                    this.sendMessage('countdown',(countdownTime))
                     countdownTime--
                     if(countdownTime < -1){
                         clearInterval(countdownInterval)
@@ -350,11 +336,30 @@ class Game{
     }
 
     showResults(){
-        for(const socketID in this.players){
-            this.players[socketID].socket.emit('showResults', (this.scoreArray))
-        }
+        this.sendMessage('showResults', (this.scoreArray))
     }
 
+
+    /*
+    =======================================
+              Facilitor Functions
+    =======================================
+    */
+
+    sendMessage(msg,value = '',receiver = '@everyone'){
+        if(receiver === '@everyone'){
+            for(const socketID in this.players){
+                this.players[socketID]["socket"].emit(msg, value)
+            }
+        }else{
+            for(const socketID in this.players){
+                if(socketID === receiver){
+                    this.players[socketID]["socket"].emit(msg,value)
+                }
+            }
+        }
+
+    }
 }
 
 module.exports = {Game}

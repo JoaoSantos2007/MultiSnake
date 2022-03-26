@@ -9,43 +9,45 @@ class Server{
 
         //Incrementa 1 no time a cada segundo
         setInterval(() =>{
-            for(const i in this.games){
-                this.games[i].time++
-                this.games[i].sendTime()
-                this.verifGameEnd(this.games[i])
+            for(const gameIndex in this.games){
+              if(this.games[gameIndex].stage === 'running'){
+                this.games[gameIndex].time++
+                this.games[gameIndex].sendTime()
+                this.verifGameEnd(this.games[gameIndex])
+              }
             }
         },1000)
     }
 
     syncUser(socketID,socket){
-        let createNewUser = true
-        
-        //Verifica se já existe o usuário
-        for(const i in this.users){
-            if(this.users[i].socketID == socketID){
-              createNewUser = false
-              for(const x in this.games){
-                for(const y in this.games[x].sockets){
-                  if(this.games[x].sockets[y].id == socketID){
-                    this.games[x].sockets[y] = socket
-                  }
+      let createNewUser = true
+      
+      //Verifica se já existe o usuário
+      for(const usersIndex in this.users){
+          if(this.users[usersIndex].socketID == socketID){
+            createNewUser = false
+            for(const gamesIndex in this.games){
+              for(const playersIndex in this.games[gamesIndex].players){
+                if(this.games[gamesIndex].players[playersIndex].socket.id == socketID){
+                  this.games[gamesIndex].players[playersIndex].socket = socket
                 }
               }
             }
-        }
-      
-          if(createNewUser){
-            this.users[socketID] = new User(socketID)
-            console.log(this.users)
           }
+      }
+    
+      if(createNewUser){
+          this.users[socketID] = new User(socketID)
+          console.log(this.users)
+      }
     }
 
     searchGames(gameMode,socket){
         let findGame = false
         
-        for(const i in this.games){
-          if(this.games[i].type == gameMode && Number((Object.keys(this.games[i].players).length)+1) < 6 && findGame != true && this.games[i].stage == 'waitPlayers'){
-            this.games[i].addPlayer(socket)
+        for(const gamesIndex in this.games){
+          if(this.games[gamesIndex].type === gameMode && Number((Object.keys(this.games[gamesIndex].players).length)+1) < 6 && findGame != true && this.games[gamesIndex].stage == 'waitPlayers'){
+            this.games[gamesIndex].addPlayer(socket)
             findGame = true
           }
         }
@@ -60,18 +62,23 @@ class Server{
         console.log(this.games)
     }
 
-    quitPlayer(socketID){
-      for(const i in this.games){
-        if(this.games[i].socketIds.includes(socketID)){
-          this.games[i].playerExit(socketID)
+    exitPlayer(socketID){
+      for(const gamesIndex in this.games){
+        if(this.games[gamesIndex].players === socketID){
+          this.games[gamesIndex].playerExit(socketID)
         }
         
       }
     }
 
     verifGameEnd(game){
-      if(game.time >= 180 || game.alivePlayers.length <= 1){
-        console.log('fim!')
+      if(game.time >= 180 || game.players.length <= 1){
+        game.stage = 'showResults'
+        game.showResults()
+        setTimeout(() => {
+          game.goLobby()
+          this.games.splice(this.games.indexOf(game), 1);
+        },10000)
       }
     }
 

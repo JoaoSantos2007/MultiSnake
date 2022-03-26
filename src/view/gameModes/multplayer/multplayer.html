@@ -22,12 +22,9 @@
             <section class="content">
                 <canvas id="canvas"></canvas>
                 <div class="gameInformation">
-                    <div class="divTime"><p id="time">3:00</p></div>
+                    <div class="divTime"><p id="time">0:00</p></div>
                     <table class="scoreTable" id="scoreTable">
-                        <tr class="header">
-                            <td>Top 10 players</td>
-                            <td>Score</td>
-                        </tr>
+
                     </table>
                 </div>
             </section>
@@ -40,6 +37,37 @@
                 <img src="arrow-right.png" alt="" onclick="set_key('ArrowRight')">
             </div>
         </main>
+
+        <div class="countdown" id="countdown">
+            <div class="time">
+                <img class="timeImg" id="timeIMG" src="1.png" alt="">
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <ul>
+                <li>
+                    <div class="divMedal">
+                        <img class="imgMedal" src="medal1.png" alt="">
+                        <p class="pMedal" id="pFirst">gzuygyutzxcvgfdt</p>
+                    </div>
+
+                </li>
+                <li>
+                    <div class="divMedal">
+                        <img class="imgMedal" src="medal2.png" alt="">
+                        <p class="pMedal" id="pSecond"></p>
+                    </div>
+                </li>
+                <li>
+                    <div class="divMedal">
+                        <img class="imgMedal" src="medal3.png" alt="">
+                        <p class="pMedal" id="pThird"></p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
     </body>
     
     <script src="checkUser.js"></script>

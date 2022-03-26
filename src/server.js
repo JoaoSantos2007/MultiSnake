@@ -8,10 +8,10 @@ webServer.listen(3000, function () {
   console.log('> Server listening on port:', 3000)
 });
 
+
 //Other files
-const {SendFiles} = require('./Class/SendFiles.js')
+const {SendFiles} = require('./scripts/SendFiles.js')
 SendFiles(webApp,__dirname)
-const {Game} = require('./Class/Game.js')
 const {Server} = require('./Class/Server.js')
 const server = new Server
 
@@ -19,6 +19,7 @@ setInterval(() => {
   io.emit('current_connections', io.engine.clientsCount)
 }, 5000)
 
+// io.set('log level', false)
 
 io.on('connection', function (socket) {
 
@@ -39,18 +40,17 @@ io.on('connection', function (socket) {
   })
 
   socket.on('exitGame',() =>{
-    console.log('sair')
-    server.quitPlayer(socket.id)
+    server.exitPlayer(socket.id)
   })
 
 
   socket.on('changeKey', (key) => {
     //Verif key
     if (server.allowKeys.includes(key)) {
-      for(const i in server.games){
-        for(const x in server.games[i].socketIds){
-          if(server.games[i].socketIds[x] == socket.id){
-            server.games[i].changeKey(key,socket.id)
+      for(const gameIndex in server.games){
+        for(const socketID in server.games[gameIndex].players){
+          if(socketID == socket.id){
+            server.games[gameIndex].changeKey(key,socket.id)
           }
         }
       }

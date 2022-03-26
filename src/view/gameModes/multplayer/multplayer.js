@@ -44,6 +44,17 @@ function exitGame(){
 /* Receber Eventos */
 /* ************** */
 
+socket.on('countdown',(time) => {
+    window.document.getElementById('countdown').style.display = 'block'
+    
+    if(time < 0){
+        window.document.getElementById('countdown').style.display = 'none'
+    }else{    
+        const timeIMG = window.document.getElementById('timeIMG')
+        timeIMG.setAttribute('src',`${String(time)}.png`)
+    }
+})
+
 //Receber Estado do jogo
 socket.on('gameState', (gameState) => {
     game = gameState
@@ -53,7 +64,6 @@ socket.on('gameState', (gameState) => {
 
 //Atualizar tempo
 socket.on('updateTime', (time) => {
-    console.log(time.time)
     const data = new Date(time * 1000)
     window.document.getElementById('time').innerText = `${data.getMinutes()}:${data.getSeconds()}`
 })
@@ -61,6 +71,14 @@ socket.on('updateTime', (time) => {
 //Atualizar pontos
 socket.on('updateScore', (updatedScore) =>{
     updatePlayerScore(updatedScore.scoreArray,updatedScore.totPlayers)
+})
+
+socket.on('showResults', (scoreList)=>{
+    console.log('fim !',scoreList)
+    window.document.getElementById('results').style.display = 'block'
+    window.document.getElementById('pFirst').innerText = scoreList[0].socketId
+    window.document.getElementById('pSecond').innerText = scoreList[1].socketId
+    window.document.getElementById('pThird').innerText = scoreList[2].socketId
 })
 
 //Rodar Audios do jogo
@@ -75,6 +93,10 @@ socket.on('playMusic', (audioName) => {
             break
     }
     
+})
+
+socket.on('goLobby',() =>{
+    window.location.href = '/'
 })
 
 
@@ -130,7 +152,14 @@ function renderGame(){
 
 //Atualizar a tabela de pontos e jogadores no jogo
 function updatePlayerScore(scoreArray,totPlayers){
+    
     let scoreTableInnerHTML
+
+    scoreTableInnerHTML = `<tr class="header">
+        <td>Top 10 players</td>
+        <td>Score</td>
+    </tr>`
+
     scoreArray.forEach((score) => {
         scoreTableInnerHTML += `
             <tr class="${socketID === score.socketId ? 'current-player' : ''}">

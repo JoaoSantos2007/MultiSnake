@@ -4,122 +4,80 @@ class Game{
         this.id = id,
         this.stage = 'waitPlayers',
         this.time = 0,
-
-        this.sockets = [],
-        this.socketIds = [],
-        
-        this.players = {},
-        this.alivePlayers = [],
         this.totPlayers = 0,
 
-        this.fruits = {},
+        this.players = {},
         this.scoreArray = [],
+        this.fruits = {},
         
-        this.updateGame = setInterval(() => {
-            this.main()
-        },100),
-
-        this.generateFruits = setInterval(()=>{
-            this.addFruit()
-        }, 5000)
+        this.updateGameStateInterval = null,
+        this.generateFruitsInterval = null,
 
         this.startGame()   
     }
 
-    main() {
-        for(const socketID in this.players){
-            this.movePlayer(socketID)
-            this.verifPlayerEnd(socketID)
-        }
 
-        for(const i in this.sockets){
-            this.sockets[i].emit('gameState',{
-                "players": this.players,
-                "fruits": this.fruits,
-            })
-        }
-    }
+    /*
+    =========================================
+                Funcões Players
+    =========================================
+    */
 
-
-    //Adiciona um jogador
     addPlayer(socket) {
+        //Generate initial player position
         const playerX = (Math.floor(Math.random() * 30)) * 10
         const playerY = ((Math.floor(Math.random() * 15)) * 10)
-        this.players[socket.id] = {
+
+        this[socket.id] += {
+            socket: socket,
             x: playerX,
             y: playerY,
             direction: null,
             positions: [[playerX, playerY]],
             score: 0,
-            scored: false
+            scored: false,
+            lost: false
         }
-        this.sockets.push(socket)
-        this.socketIds.push(socket.id)
-        
-        this.alivePlayers.push(socket.id)
         this.totPlayers++
     }
 
     //Verifica se o jogador perdeu
     verifPlayerEnd(socketId) {
         const player = this.players[socketId]
-        let playerLost = false
-        if (player.x >= 300 || player.x < 0 || player.y >= 150 || player.y < 0) {
-            playerLost = true
-        }
-        for (var i = 0; i < player.positions.length - 1; i++) {
-            if (player.positions[i][0] == player.x && player.positions[i][1] == player.y) {
-                playerLost = true
+        if(player != undefined){
+            let lost = false
+            if (player.x >= 300 || player.x < 0 || player.y >= 150 || player.y < 0) {
+                lost = true
             }
-        }
-        if(playerLost){
-
+            for (var i = 0; i < player.positions.length - 1; i++) {
+                if (player.positions[i][0] == player.x && player.positions[i][1] == player.y) {
+                    lost = true
+                }
+            }
+            if(lost){
+                this.playerLost(socketId)
+            }
         }
     }
 
     //Jogador perdeu
     playerLost(socketId){
-        this.alivePlayers.splice(this.alivePlayers.indexOf(socketId), 1);
+        for(const index in this.alivePlayers){
+            if(this.alivePlayers[index] == socketId){
+                this.alivePlayers.splice(index, 1);
+                this.players.lost = true
+            }
+        }
+        console.log('player vivos: ',this.alivePlayers)
     }
 
     playerExit(socketId){
+        this.playerLost(socketId)
+        this.goLobby(socketId)
         this.totPlayers--
         delete this.players[socketId]
-        this.playerLost(socketId)
-        this.socketIds.splice(this.socketIds.indexOf(socketId,1))
-        this.sockets.splice(this.sockets.indexOf(socketId,1))
-    }
-    
-
-
-    verifKey(direction,newDirection){
-        let keyValid = true
-        if((direction === 'up' || direction === 'down') && (newDirection === 'up' || newDirection === 'down')){
-          keyValid = false
-        }else if((direction === 'left' || direction === 'right') && (newDirection === 'left' || newDirection === 'right')){
-          keyValid = false
-        }
-        return(keyValid)
-    }
-
-
-    changeKey(key,socketID){
-        let newDirection = null
-        if (key === 'w' || key === 'ArrowUp') {
-          newDirection = 'up'
-        } else if (key === 's' || key === 'ArrowDown') {
-          newDirection = 'down'
-        } else if (key === 'a' || key === 'ArrowLeft') {
-          newDirection = 'left'
-        } else if (key === 'd' || key === 'ArrowRight') {
-          newDirection = 'right'
-        } else {
-          return
-        }
-
-        if(this.verifKey(this.players[socketID].direction,newDirection)){
-            if (newDirection != this.players[socketID].direction && newDirection != null) this.players[socketID].direction = newDirection
-        }
+        this.socketIds.splice(this.socketIds.indexOf(socketId),1)
+        this.sockets.splice(this.sockets.indexOf(socketId),1)
     }
 
     //Move o jogador
@@ -158,8 +116,11 @@ class Game{
     }
 
 
-
-
+    /*
+    ========================================
+                Funções Fruits
+    ======================================== 
+    */
 
     //Função para adicionar frutas
     addFruit() {
@@ -194,6 +155,11 @@ class Game{
                 player.score++
                 player.scored = true
                 this.updateScore()
+                for(const socket in this.sockets){
+                    if(socket.id == socketID){
+                        this.sockets[i].emit('playMusic',('food'))
+                    }
+                }
                 this.removeFruit(fruitId)
                 
             }
@@ -205,6 +171,66 @@ class Game{
     }
 
 
+    /* 
+    ==========================================
+                    Update Key
+    ==========================================
+    */
+
+    verifKey(direction,newDirection){
+        let keyValid = true
+        if((direction === 'up' || direction === 'down') && (newDirection === 'up' || newDirection === 'down')){
+          keyValid = false
+        }else if((direction === 'left' || direction === 'right') && (newDirection === 'left' || newDirection === 'right')){
+          keyValid = false
+        }
+        return(keyValid)
+    }
+
+
+    changeKey(key,socketID){
+        let newDirection = null
+        if (key === 'w' || key === 'ArrowUp') {
+          newDirection = 'up'
+        } else if (key === 's' || key === 'ArrowDown') {
+          newDirection = 'down'
+        } else if (key === 'a' || key === 'ArrowLeft') {
+          newDirection = 'left'
+        } else if (key === 'd' || key === 'ArrowRight') {
+          newDirection = 'right'
+        } else {
+          return
+        }
+
+        if(this.verifKey(this.players[socketID].direction,newDirection) && this.stage === 'running'){
+            if (newDirection != this.players[socketID].direction && newDirection != null) this.players[socketID].direction = newDirection
+        }
+    }
+
+
+    /*
+    ==========================================
+                Update Game Informations
+    ==========================================
+    */
+
+    getGameState(){
+        const gameState = {}
+        gameState["fruits"] = this.fruits
+        for(const socketID in this.players){
+            const player = this.players[socketID]
+            gameState[socketID] = {
+                x: player.x,
+                y: player.y,
+                direction: player.direction,
+                positions: [[player.x, player.y]],
+                score: player.score,
+                lost: player.lost
+            }
+        }
+
+        return gameState
+    }
 
     updateScore(){
         const previewScoreArray = []
@@ -238,26 +264,97 @@ class Game{
     }
 
 
+    /*
+    ===========================================
+                Game Functions
+    ===========================================
+    */
+
+    main() {
+        if(this.stage === 'running'){
+            //Executa funções para mover e verificar players
+            for(const socketID in this.players){
+                this.movePlayer(socketID)
+                this.verifPlayerEnd(socketID)
+            }
+    
+            //Envia informações do jogo aos players
+            for(const socketID in this.players){                
+                this.players[socketID]['socket'].emit('gameState',getGameState())
+            }
+        }
+    }
+
+    sendTime(){
+        for(const socketID in this.players){
+            this.players[socketID].socket.emit('updateTime',(this.time))
+        }
+    }
+
+    goLobby(socketID = null){
+        if(socketID === null){
+            for(const socketIds in this.players){
+                this.players[socketIds]['socket'].emit('goLobby')
+            }
+        }else{
+            this.players[socketID].socket.emit('goLobby')
+            
+        }
+
+    }
+
+
+    /* 
+    =========================================
+                Game Stage Functions
+    =========================================
+    */
 
     startGame(){
         let TimeToStart = 0
+
         const intervalTimeToStart = setInterval(() => {
             TimeToStart ++
-            if(TimeToStart > 10 && this.stage == 'waitPlayers'){
-                this.stage = 'running'
-                for(const i in this.sockets){
-                    this.sockets[i].emit('goMultplayer')
+
+            if(TimeToStart > 10 && this.stage === 'waitPlayers'){
+                //  Set Pre Game Stage
+                this.stage = 'pre-game'
+                //  Redirect players to game
+                for(const socketID in this.players){
+                    this.players[socketID].socket.emit('goMultplayer')
                 }
                 clearInterval(intervalTimeToStart)
+                
+                //Execute Pre Stage
+                let countdownTime = 5
+                //CountDown to start game
+                const countdownInterval = setInterval(() => {
+                    for(const socketID in this.players){
+                        this.players[socketID]['socket'].emit('countdown',(countdownTime))
+                    }
+                    countdownTime--
+                    if(countdownTime < -1){
+                        clearInterval(countdownInterval)
+                        //Start Game
+                        this.stage = 'running'
+                        this.updateGameStateInterval = setInterval(() => {
+                            this.main()
+                        },100)
+                        this.generateFruitsInterval = setInterval(()=>{
+                            this.addFruit()
+                        }, 5000)
+                    }
+                },1000) 
             }
         },1000)
     }
 
-    sendTime(){
-        for(const i in this.sockets){
-            this.sockets[i].emit('updateTime',(this.time))
+    showResults(){
+        for(const socketID in this.players){
+            this.players[socketID].socket.emit('showResults', (this.scoreArray))
         }
     }
+
 }
 
 module.exports = {Game}

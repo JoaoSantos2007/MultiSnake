@@ -144,6 +144,80 @@ canvas{
 }
 
 
+
+
+.countdown{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+}
+
+.countdown .time{
+    position: relative;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.85);
+    width: 140px;
+    height: 140px;
+    border-radius: 360px;
+}
+
+.countdown .timeImg{
+    position: relative;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+}
+
+.results{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+}
+
+.results ul{
+    position: relative;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: calc(104 * 3);
+}
+
+.results ul li{
+    width: 600px;
+    height: 104px;
+    background: white;
+}
+
+.divMedal{
+    padding: 20px 15px;
+}
+
+.imgMedal{
+    border-right: rgba(0,0,0,0.5) 1.5px solid;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 20px;
+}
+
+.pMedal{
+    display: inline-block;
+    font-size: 32px;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
 /* Cell Phone */
 @media screen and (max-width:600px){
     .btn_start{

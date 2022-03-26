@@ -100,6 +100,37 @@ function SendFiles(webApp,path) {
     webApp.get('/favicon.ico', function (req, res) {
         res.sendFile(path + '/assets/favicon.ico')
     })
+
+
+    webApp.get('/0.png', function (req, res) {
+        res.sendFile(path + '/assets/zero.png')
+    })
+    webApp.get('/1.png', function (req, res) {
+        res.sendFile(path + '/assets/one.png')
+    })
+    webApp.get('/2.png', function (req, res) {
+        res.sendFile(path + '/assets/two.png')
+    })
+    webApp.get('/3.png', function (req, res) {
+        res.sendFile(path + '/assets/three.png')
+    })
+    webApp.get('/4.png', function (req, res) {
+        res.sendFile(path + '/assets/four.png')
+    })
+    webApp.get('/5.png', function (req, res) {
+        res.sendFile(path + '/assets/five.png')
+    })
+
+    webApp.get('/medal1.png', function (req, res) {
+        res.sendFile(path + '/assets/medal1.png')
+    })
+    webApp.get('/medal2.png', function (req, res) {
+        res.sendFile(path + '/assets/medal2.png')
+    })
+    webApp.get('/medal3.png', function (req, res) {
+        res.sendFile(path + '/assets/medal3.png')
+    })
+    
 }
 
 module.exports = { SendFiles }

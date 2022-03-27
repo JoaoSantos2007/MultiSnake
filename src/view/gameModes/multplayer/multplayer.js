@@ -58,6 +58,7 @@ socket.on('countdown',(time) => {
 //Receber Estado do jogo
 socket.on('gameState', (gameState) => {
     game = gameState
+    console.log(gameState)
     limparTela()
     requestAnimationFrame(renderGame)
 })

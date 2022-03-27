@@ -9,15 +9,66 @@ class Server{
 
         //Incrementa 1 no time a cada segundo
         setInterval(() =>{
-            for(const gameIndex in this.games){
-              if(this.games[gameIndex].stage === 'running'){
-                this.games[gameIndex].time++
-                this.games[gameIndex].sendTime()
-                this.verifGameEnd(this.games[gameIndex])
-              }
-            }
+          this.main()
         },1000)
     }
+
+
+    /*
+    ===========================
+          Game Functions
+    ===========================
+    */
+
+    main(){
+      for(const gameIndex in this.games){
+        const game = this.games[gameIndex]
+        if(game.stage === 'running'){
+          game.time++
+          game.sendTime()
+          if(game.verifGameEnd()){
+            this.games.splice(this.games.indexOf(game), 1);
+          }
+        }
+      }
+    }
+
+    searchGames(gameMode,socket){
+      let findGame = false
+      
+      for(const gamesIndex in this.games){
+        if(this.games[gamesIndex].type === gameMode && this.games[gamesIndex].totPlayers < 6 && findGame != true && this.games[gamesIndex].stage == 'waitPlayers'){
+          this.games[gamesIndex].addPlayer(socket)
+          findGame = true
+        }
+      }
+  
+      if(findGame != true){
+        const random_gameId = Math.floor(Math.random() * 100000000000)
+        let newGame = new Game(gameMode,random_gameId)
+        newGame.addPlayer(socket)
+        this.games.push(newGame)      
+      }
+
+      console.log(this.games)
+  }
+
+    exitPlayer(socketID){
+      for(const gamesIndex in this.games){
+        for(const playerSocketID in this.games[gamesIndex].players){
+          if(playerSocketID === socketID){
+            this.games[gamesIndex].playerExit(socketID)
+          }
+        }        
+      }
+    }
+
+
+    /*
+    ============================
+          User Functions
+    ============================
+    */
 
     syncUser(socketID,socket){
       let createNewUser = true
@@ -27,9 +78,9 @@ class Server{
           if(this.users[usersIndex].socketID == socketID){
             createNewUser = false
             for(const gamesIndex in this.games){
-              for(const playersIndex in this.games[gamesIndex].players){
-                if(this.games[gamesIndex].players[playersIndex].socket.id == socketID){
-                  this.games[gamesIndex].players[playersIndex].socket = socket
+              for(const playerSocketID in this.games[gamesIndex].players){
+                if(playerSocketID === socketID){
+                  this.games[gamesIndex].players[playerSocketID].socket = socket
                 }
               }
             }
@@ -38,51 +89,8 @@ class Server{
     
       if(createNewUser){
           this.users[socketID] = new User(socketID)
-          console.log(this.users)
       }
     }
-
-    searchGames(gameMode,socket){
-        let findGame = false
-        
-        for(const gamesIndex in this.games){
-          if(this.games[gamesIndex].type === gameMode && Number((Object.keys(this.games[gamesIndex].players).length)+1) < 6 && findGame != true && this.games[gamesIndex].stage == 'waitPlayers'){
-            this.games[gamesIndex].addPlayer(socket)
-            findGame = true
-          }
-        }
-    
-        if(findGame != true){
-          const random_gameId = Math.floor(Math.random() * 100000000000)
-          let newGame = new Game(gameMode,random_gameId)
-          newGame.addPlayer(socket)
-          this.games.push(newGame)      
-        }
-
-        console.log(this.games)
-    }
-
-    exitPlayer(socketID){
-      for(const gamesIndex in this.games){
-        if(this.games[gamesIndex].players === socketID){
-          this.games[gamesIndex].playerExit(socketID)
-        }
-        
-      }
-    }
-
-    verifGameEnd(game){
-      if(game.time >= 180 || game.players.length <= 1){
-        game.stage = 'showResults'
-        game.showResults()
-        setTimeout(() => {
-          game.goLobby()
-          this.games.splice(this.games.indexOf(game), 1);
-        },10000)
-      }
-    }
-
-
 
 }
 

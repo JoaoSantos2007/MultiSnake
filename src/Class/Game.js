@@ -42,8 +42,8 @@ class Game{
     }
 
     //Verifica se o jogador perdeu
-    verifPlayerEnd(socketId) {
-        const player = this.players[socketId]
+    verifPlayerEnd(socketID) {
+        const player = this.players[socketID]
         if(player != undefined){
             let lost = false
             if (player.x >= 300 || player.x < 0 || player.y >= 150 || player.y < 0) {
@@ -55,57 +55,54 @@ class Game{
                 }
             }
             if(lost){
-                this.playerLost(socketId)
+                this.playerLost(socketID)
             }
         }
     }
 
     //Jogador perdeu
-    playerLost(socketId){
-        for(const index in this.alivePlayers){
-            if(this.alivePlayers[index] == socketId){
-                this.alivePlayers.splice(index, 1);
-                this.players.lost = true
-            }
+    playerLost(socketID){
+        for(const playerSocketID in this.players){
+            if(playerSocketID === socketID){
+                this.players[playerSocketID].lost = true
+            }   
         }
-        console.log('player vivos: ',this.alivePlayers)
     }
 
-    playerExit(socketId){
-        this.playerLost(socketId)
-        this.goLobby(socketId)
+    playerExit(socketID){
+        this.playerLost(socketID)
+        this.goLobby(socketID)
+        delete this.players[socketID]
         this.totPlayers--
-        delete this.players[socketId]
-        this.socketIds.splice(this.socketIds.indexOf(socketId),1)
-        this.sockets.splice(this.sockets.indexOf(socketId),1)
     }
 
     //Move o jogador
     movePlayer(socketID) {
         const player = this.players[socketID]
+        
+        const direction = player.direction
+        if (direction === null) return
+        
         const playerWidth = 10
         const playerHeight = 10
-        const direction = player.direction
-        if (direction == null) return
-
-        if (direction === 'left') {
-            player.x = player.x - playerWidth
-        }
-
-        if (direction === 'up') {
-            player.y = player.y - playerHeight
-        }
-
-        if (direction === 'right') {
-            player.x = player.x + playerWidth
-        }
-
-        if (direction === 'down') {
-            player.y = player.y + playerHeight
+        
+        switch(direction){
+            case 'left':
+                player.x = player.x - playerWidth
+                break
+            case 'right':
+                player.x = player.x + playerWidth
+                break
+            case 'up':
+                player.y = player.y - playerHeight
+                break
+            case 'down':
+                player.y = player.y + playerHeight
+                break
         }
 
         player.positions.push([player.x, player.y])
-        if (player.scored != true) {
+        if (player.scored !== true) {
             player.positions.splice(0, 1)
         } else {
             player.scored = false
@@ -148,15 +145,15 @@ class Game{
     }
 
     verifFood(socketID) {
-        for (var fruitId in this.fruits) {
+        for (const fruitId in this.fruits) {
             const fruit = this.fruits[fruitId]
             const player = this.players[socketID]
             if (player.x === fruit.x && player.y === fruit.y) {
                 player.score++
                 player.scored = true
                 this.updateScore()
-                for(const socket in this.sockets){
-                    if(socket.id == socketID){
+                for(const playerSocketID in this.players){
+                    if(playerSocketID === socketID){
                         this.sendMessage('playMusic',('food'))
                     }
                 }
@@ -215,15 +212,17 @@ class Game{
     */
 
     getGameState(){
-        const gameState = {}
-        gameState["fruits"] = this.fruits
+        const gameState = {
+            fruits: this.fruits,
+            players: {}
+        }
         for(const socketID in this.players){
             const player = this.players[socketID]
-            gameState[socketID] = {
+            gameState["players"][socketID] = {
                 x: player.x,
                 y: player.y,
                 direction: player.direction,
-                positions: [[player.x, player.y]],
+                positions: player.positions,
                 score: player.score,
                 lost: player.lost
             }
@@ -334,6 +333,26 @@ class Game{
             }
         },1000)
     }
+
+    verifGameEnd(){
+        let alivePlayers = this.totPlayers
+        for(const socketID in this.players){
+            if(this.players[socketID].lost){
+                alivePlayers--
+            }
+        }
+
+        if(this.time >= 180 || this.totPlayers <= 1 || alivePlayers <= 1){
+          this.stage = 'showResults'
+          this.showResults()
+  
+          setTimeout(() => {
+            this.goLobby()
+            
+          },10000)
+          return true
+        }
+      }
 
     showResults(){
         this.sendMessage('showResults', (this.scoreArray))

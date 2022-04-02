@@ -130,6 +130,22 @@ function SendFiles(webApp,path) {
     webApp.get('/medal3.png', function (req, res) {
         res.sendFile(path + '/assets/medal3.png')
     })
+
+    webApp.get('/1v1.png', function (req, res) {
+        res.sendFile(path + '/assets/1v1.png')
+    })
+    webApp.get('/2v2.png', function (req, res) {
+        res.sendFile(path + '/assets/2v2.png')
+    })
+    webApp.get('/3v3.png', function (req, res) {
+        res.sendFile(path + '/assets/3v3.png')
+    })
+    webApp.get('/4v4.png', function (req, res) {
+        res.sendFile(path + '/assets/4v4.png')
+    })
+    webApp.get('/create.png', function (req, res) {
+        res.sendFile(path + '/assets/create.png')
+    })
     
 }
 

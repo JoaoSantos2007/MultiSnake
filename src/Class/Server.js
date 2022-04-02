@@ -35,6 +35,11 @@ class Server{
 
     searchGames(gameMode,socket){
       let findGame = false
+
+      if(gameMode == 'local'){
+        socket.emit('goTo',('/local'))
+        return
+      }
       
       for(const gamesIndex in this.games){
         if(this.games[gamesIndex].type === gameMode && this.games[gamesIndex].totPlayers < 6 && findGame != true && this.games[gamesIndex].stage == 'waitPlayers'){

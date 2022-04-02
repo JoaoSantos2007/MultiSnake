@@ -309,7 +309,7 @@ class Game{
                 //  Set Pre Game Stage
                 this.stage = 'pre-game'
                 //  Redirect players to game
-                this.sendMessage('goMultplayer')
+                this.sendMessage('goTo',('/multplayer'))
                 clearInterval(intervalTimeToStart)
                 
                 //Execute Pre Stage

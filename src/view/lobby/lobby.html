@@ -26,23 +26,26 @@
             </nav>
         </header>
         <main>
-            <section class="show_players" id="show_players">
-                <div class="game-list">
-                    <ul class="gameCards" id="gameCards">
-                        <li onclick="play('solo')"><p>Solo</p></li>
-                        <li onclick="play('duo')"><p>Duo</p></li>
-                        <li onclick="play('trio')"><p>Trio</p></li>
-                        <li onclick="play('squad')"><p>Squad</p></li>
-                        
-                        <li onclick="play('local')"><p>Local</p></li>
-                        <li onclick="play('local2v2')"><p>Local 2v2</p></li>
-                        <li onclick="play('personalized')"><p>Personalized</p></li>
-                        <li onclick="play('beta')"><p>Beta</p></li>
-                    </ul>
-                </div>
+            <section class="gameMain" id="gameMain">
+                <ul class="gameCards" id="gameCards" data-is-scrollable="true">
+                    <li onclick="play('solo')"><img src="1v1.png" alt=""></li>
+                    <li onclick="play('duo')"><img src="2v2.png" alt=""></li>
+                    <li onclick="play('trio')"><img src="3v3.png" alt=""></li>
+                    <li onclick="play('squad')"><img src="4v4.png" alt=""></li>
+                    <li onclick="play('create')"><img src="create.png" alt=""></li>
+
+                    <br>
+
+                    <li onclick="play('local')"><p>Local</p></li>
+                    <li onclick="play('local2v2')"><p>Local2v2</p></li>
+                    
+                </ul>
             </section>
+
             <input class="play" id="btn_play" type="button" value="Play" onclick="select_game()">
         </main>
+
+        
     </body>
     <script src="checkUser.js"></script>
     <script src="lobby.js"></script>

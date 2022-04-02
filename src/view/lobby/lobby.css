@@ -26,10 +26,10 @@ body{
     list-style: none;
 }
 
-.show_players{
+.gameMain{
+    position: absolute;
     width: 1000px;
     height: 600px;
-    position: absolute;
     top: 50%;
     left: 50%;
     margin-right: -50%;
@@ -37,24 +37,28 @@ body{
     background: rgba(67, 83, 81, 0.5);
 }
 
-.game-list{
+.gameCards{
+    display: none;
+
     position: relative;
     top: 50%;
     transform: translate(0, -50%);
     text-align: center;
-}
 
-.gameCards{
-    display: none;
+    width: 100%;
+    height: 100%;
+
+    overflow:auto;
+    overflow-y:scroll;
 }
 
 .gameCards li{
     width: 300px;
     height: 150px;
     background: red;
-    display: inline-block;
     margin: 30px 10px;
     cursor: pointer;
+    display: inline-block;
     
 }
 
@@ -63,6 +67,11 @@ body{
     top: 50%;
     transform: translate(0, -50%);
     font-size: 50px;
+}
+
+.gameCards li img{
+    width: 100%;
+    height: 100%;
 }
 
 .play{

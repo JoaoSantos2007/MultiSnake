@@ -20,7 +20,6 @@ function play(mode){
     console.log(mode)
 }
 
-socket.on('goMultplayer',() =>{
-    console.log('Game Started!')
-    window.location.href = '/multplayer'
+socket.on('goTo',(url) =>{
+    window.location.href = url
 })

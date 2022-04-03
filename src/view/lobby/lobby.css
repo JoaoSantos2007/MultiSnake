@@ -74,6 +74,20 @@ body{
     height: 100%;
 }
 
+.teste1{
+    width: 100%;
+    height: 70px;
+    background: rgba(64, 224, 208, 0.384);
+}
+
+.teste1 p{
+    font-size: 64px;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    font-style: italic;
+}
+
 .play{
     width: 200px;
     height: 60px;

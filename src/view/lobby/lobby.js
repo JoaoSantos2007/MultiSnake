@@ -23,3 +23,9 @@ function play(mode){
 socket.on('goTo',(url) =>{
     window.location.href = url
 })
+
+socket.on('sendTimeStart',(time) => {
+    const data = new Date(time * 1000)
+    window.document.getElementById('timeStart').innerText = `${data.getMinutes()}:${data.getSeconds()}`
+})
+

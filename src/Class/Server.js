@@ -1,11 +1,15 @@
 const {User} = require('./User.js')
+const {matchMaking} = require('./matchMaking.js')
+
 const {Game} = require('./Game.js')
+
 
 class Server{
     constructor(){
-        this.games = [],
+        this.games = {},
         this.users = [],
-        this.allowKeys = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight']
+        this.allowKeys = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'],
+        this.matchMaking = new matchMaking
 
         //Incrementa 1 no time a cada segundo
         setInterval(() =>{
@@ -16,47 +20,34 @@ class Server{
 
     /*
     ===========================
-          Game Functions
+          Server Functions
     ===========================
     */
 
     main(){
+      this.verifGameStarted()
+      this.updateGames()
+    }
+
+
+    /*
+    =============================
+            Game Functions
+    =============================
+    */
+
+    updateGames(){
       for(const gameIndex in this.games){
         const game = this.games[gameIndex]
         if(game.stage === 'running'){
           game.time++
           game.sendTime()
           if(game.verifGameEnd()){
-            this.games.splice(this.games.indexOf(game), 1);
+            delete this.games[gameIndex]
           }
         }
       }
     }
-
-    searchGames(gameMode,socket){
-      let findGame = false
-
-      if(gameMode == 'local'){
-        socket.emit('goTo',('/local'))
-        return
-      }
-      
-      for(const gamesIndex in this.games){
-        if(this.games[gamesIndex].type === gameMode && this.games[gamesIndex].totPlayers < 6 && findGame != true && this.games[gamesIndex].stage == 'waitPlayers'){
-          this.games[gamesIndex].addPlayer(socket)
-          findGame = true
-        }
-      }
-  
-      if(findGame != true){
-        const random_gameId = Math.floor(Math.random() * 100000000000)
-        let newGame = new Game(gameMode,random_gameId)
-        newGame.addPlayer(socket)
-        this.games.push(newGame)      
-      }
-
-      console.log(this.games)
-  }
 
     exitPlayer(socketID){
       for(const gamesIndex in this.games){
@@ -70,11 +61,38 @@ class Server{
 
 
     /*
+    =============================
+            Match Making
+    =============================
+    */
+
+    verifGameStarted(){
+      for(const gameIndex in this.matchMaking.temporaryListGame){
+        const provisoryGame = this.matchMaking.temporaryListGame[gameIndex]
+        if(this.matchMaking.checkGame(provisoryGame) === true){
+          delete this.matchMaking.temporaryListGame[gameIndex]
+          this.createGame(provisoryGame)
+        }
+      }
+    }
+
+    createGame(provisoryGame){
+      const newGame = new Game(provisoryGame.mode,provisoryGame.id)
+      
+      for(const socketIndex in provisoryGame.sockets){
+        newGame.addPlayer(provisoryGame.sockets[socketIndex])
+      }
+
+      this.games[provisoryGame.id] = (newGame)
+    }
+
+    /*
     ============================
           User Functions
     ============================
     */
 
+    
     syncUser(socketID,socket){
       let createNewUser = true
       

@@ -31,12 +31,15 @@ if(width < height){
 
 //Enviar tecla pressionada para servidor
 function setKey(key){
-    socket.emit('changeKey',key)
+    socket.emit('changeKey',({
+        key: key,
+        gameID: game.id,
+    }))
 }
 
 //Enviar pedido de sair do jogo para servidor
 function exitGame(){
-    socket.emit('exitGame')
+    socket.emit('exitGame',(game.id))
 }
 
 

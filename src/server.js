@@ -47,7 +47,7 @@ io.on('connection', function (socket) {
 
   //Enter a game
   socket.on('play',(gameMode) =>{
-    server.searchGames(gameMode,socket)
+    server.matchMaking.searchGames(gameMode,socket)
   })
 
   //Exit a game
@@ -61,15 +61,12 @@ io.on('connection', function (socket) {
 
   ==============================
   */
-  socket.on('changeKey', (key) => {
+  socket.on('changeKey', (data) => {
     //Verif key
-    if (server.allowKeys.includes(key)) {
-      for(const gameIndex in server.games){
-        for(const socketID in server.games[gameIndex].players){
-          if(socketID == socket.id){
-            server.games[gameIndex].changeKey(key,socket.id)
-          }
-        }
+    console.log(data.gameID)
+    if(data.gameID != undefined){
+      if (server.allowKeys.includes(data.key)) {
+        server.games[data.gameID].changeKey(data.key,socket.id)
       }
     }
   })

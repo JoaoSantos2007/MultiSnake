@@ -7,6 +7,7 @@ class Game{
         this.totPlayers = 0,
 
         this.players = {},
+        this.teams = {},
         this.scoreArray = [],
         this.fruits = {},
         
@@ -144,6 +145,8 @@ class Game{
         }
     }
 
+
+    //MUDAR
     verifFood(socketID) {
         for (const fruitId in this.fruits) {
             const fruit = this.fruits[fruitId]
@@ -213,6 +216,7 @@ class Game{
 
     getGameState(){
         const gameState = {
+            id: this.id,
             fruits: this.fruits,
             players: {}
         }
@@ -300,38 +304,26 @@ class Game{
     */
 
     startGame(){
-        let TimeToStart = 0
-
-        const intervalTimeToStart = setInterval(() => {
-            TimeToStart ++
-
-            if(TimeToStart > 10 && this.stage === 'waitPlayers'){
-                //  Set Pre Game Stage
-                this.stage = 'pre-game'
-                //  Redirect players to game
-                this.sendMessage('goTo',('/multplayer'))
-                clearInterval(intervalTimeToStart)
-                
-                //Execute Pre Stage
-                let countdownTime = 5
-                //CountDown to start game
-                const countdownInterval = setInterval(() => {
-                    this.sendMessage('countdown',(countdownTime))
-                    countdownTime--
-                    if(countdownTime < -1){
-                        clearInterval(countdownInterval)
-                        //Start Game
-                        this.stage = 'running'
-                        this.updateGameStateInterval = setInterval(() => {
-                            this.main()
-                        },100)
-                        this.generateFruitsInterval = setInterval(()=>{
-                            this.addFruit()
-                        }, 5000)
-                    }
-                },1000) 
+        let countdownTime = 5
+        //CountDown to start game
+        const countdownInterval = setInterval(() => {
+            this.sendMessage('countdown',(countdownTime))
+            countdownTime--
+            if(countdownTime < -1){
+                this.loadGame()
+                clearInterval(countdownInterval)
             }
-        },1000)
+        },1000) 
+    }
+
+    loadGame(){
+        this.stage = 'running'
+        this.updateGameStateInterval = setInterval(() => {
+            this.main()
+        },100)
+        this.generateFruitsInterval = setInterval(()=>{
+            this.addFruit()
+        }, 5000)
     }
 
     verifGameEnd(){

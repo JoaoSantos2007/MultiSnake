@@ -1,6 +1,6 @@
-const {temporaryGame} = require('./temporaryGame.js')
+const {temporaryGame} = require('../Class/temporaryGame.js')
 
-class matchMaking{
+class MatchMaking{
 
   constructor(){
     this.temporaryListGame = []
@@ -147,4 +147,4 @@ class matchMaking{
   }
 }
 
-module.exports = {matchMaking}
+module.exports = {MatchMaking}

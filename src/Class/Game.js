@@ -70,7 +70,7 @@ class Game{
         }
     }
 
-    playerExit(socketID){
+    exitPlayer(socketID){
         this.playerLost(socketID)
         this.goLobby(socketID)
         delete this.players[socketID]

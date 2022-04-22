@@ -22,3 +22,7 @@ const server = new Server
 io.on('connection', (socket) => {
     server.SocketIO(socket)
 })
+
+// exports.users = server.userSystem.users
+exports.users = server.userSystem.users
+exports.games = server.gameSystem.games

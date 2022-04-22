@@ -1,9 +1,9 @@
 class temporaryGame{
-    constructor(random_gameId,gameMode){
-        this.id = random_gameId,
+    constructor(gameID,gameMode){
+        this.id = gameID,
         this.mode = gameMode,
         this.teams = {},
-        this.sockets = [],
+        this.players = [],
         this.TimeToStart = 0
     }
 }

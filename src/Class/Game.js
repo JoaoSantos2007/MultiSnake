@@ -1,3 +1,5 @@
+const server = require('../main.js')
+
 class Game{
     constructor(gameMode,id) {
         this.type = gameMode,
@@ -24,13 +26,12 @@ class Game{
     =========================================
     */
 
-    addPlayer(socket) {
+    addPlayer(playerID) {
         //Generate initial player position
         const playerX = (Math.floor(Math.random() * 30)) * 10
         const playerY = ((Math.floor(Math.random() * 15)) * 10)
 
-        this.players[socket.id] = {
-            socket: socket,
+        this.players[playerID] = {
             x: playerX,
             y: playerY,
             direction: null,
@@ -43,8 +44,8 @@ class Game{
     }
 
     //Verifica se o jogador perdeu
-    verifPlayerEnd(socketID) {
-        const player = this.players[socketID]
+    verifPlayerEnd(playerID) {
+        const player = this.players[playerID]
         if(player != undefined){
             let lost = false
             if (player.x >= 300 || player.x < 0 || player.y >= 150 || player.y < 0) {
@@ -56,30 +57,30 @@ class Game{
                 }
             }
             if(lost){
-                this.playerLost(socketID)
+                this.playerLost(playerID)
             }
         }
     }
 
     //Jogador perdeu
-    playerLost(socketID){
+    playerLost(playerID){
         for(const playerSocketID in this.players){
-            if(playerSocketID === socketID){
+            if(playerSocketID === playerID){
                 this.players[playerSocketID].lost = true
             }   
         }
     }
 
-    exitPlayer(socketID){
-        this.playerLost(socketID)
-        this.goLobby(socketID)
-        delete this.players[socketID]
+    exitPlayer(playerID){
+        this.playerLost(playerID)
+        this.goLobby(playerID)
+        delete this.players[playerID]
         this.totPlayers--
     }
 
     //Move o jogador
-    movePlayer(socketID) {
-        const player = this.players[socketID]
+    movePlayer(playerID) {
+        const player = this.players[playerID]
         
         const direction = player.direction
         if (direction === null) return
@@ -109,8 +110,8 @@ class Game{
             player.scored = false
         }
 
-        this.verifFood(socketID)
-        this.verifPlayerEnd(socketID)
+        this.verifFood(playerID)
+        this.verifPlayerEnd(playerID)
     }
 
 
@@ -147,17 +148,17 @@ class Game{
 
 
     //MUDAR
-    verifFood(socketID) {
+    verifFood(playerID) {
         for (const fruitId in this.fruits) {
             const fruit = this.fruits[fruitId]
-            const player = this.players[socketID]
+            const player = this.players[playerID]
             if (player.x === fruit.x && player.y === fruit.y) {
                 player.score++
                 player.scored = true
                 this.updateScore()
                 for(const playerSocketID in this.players){
-                    if(playerSocketID === socketID){
-                        this.sendMessage('playMusic',('food'))
+                    if(playerSocketID === playerID){
+                        this.shareMessage('playMusic',('food'))
                     }
                 }
                 this.removeFruit(fruitId)
@@ -188,7 +189,7 @@ class Game{
     }
 
 
-    changeKey(key,socketID){
+    changeKey(key,playerID){
         let newDirection = null
         if (key === 'w' || key === 'ArrowUp') {
           newDirection = 'up'
@@ -202,8 +203,8 @@ class Game{
           return
         }
 
-        if(this.verifKey(this.players[socketID].direction,newDirection) && this.stage === 'running'){
-            if (newDirection != this.players[socketID].direction && newDirection != null) this.players[socketID].direction = newDirection
+        if(this.verifKey(this.players[playerID].direction,newDirection) && this.stage === 'running'){
+            if (newDirection != this.players[playerID].direction && newDirection != null) this.players[playerID].direction = newDirection
         }
     }
 
@@ -220,9 +221,9 @@ class Game{
             fruits: this.fruits,
             players: {}
         }
-        for(const socketID in this.players){
-            const player = this.players[socketID]
-            gameState["players"][socketID] = {
+        for(const playerID in this.players){
+            const player = this.players[playerID]
+            gameState["players"][playerID] = {
                 x: player.x,
                 y: player.y,
                 direction: player.direction,
@@ -237,10 +238,10 @@ class Game{
 
     updateScore(){
         const previewScoreArray = []
-        for(const socketId in this.players) {
-            const player = this.players[socketId]
+        for(const playerID in this.players) {
+            const player = this.players[playerID]
             previewScoreArray.push({
-                socketId: socketId,
+                playerID: playerID,
                 score: player.score
             })
         }
@@ -258,7 +259,7 @@ class Game{
         })
 
         this.scoreArray = scoreArraySorted.slice(0, 10)
-        this.sendMessage('updateScore',({
+        this.shareMessage('updateScore',({
             totPlayers: this.totPlayers,
             scoreArray: this.scoreArray
         }))
@@ -274,25 +275,25 @@ class Game{
     main() {
         if(this.stage === 'running'){
             //Executa funções para mover e verificar players
-            for(const socketID in this.players){
-                this.movePlayer(socketID)
-                this.verifPlayerEnd(socketID)
+            for(const playerID in this.players){
+                this.movePlayer(playerID)
+                this.verifPlayerEnd(playerID)
             }
     
             //Envia informações do jogo aos players
-            this.sendMessage('gameState',this.getGameState())
+            this.shareMessage('gameState',this.getGameState())
         }
     }
 
     sendTime(){
-        this.sendMessage('updateTime',(this.time))
+        this.shareMessage('updateTime',(this.time))
     }
 
-    goLobby(socketID = null){
-        if(socketID !== null){
-            this.sendMessage('goLobby','',socketID)
+    goLobby(playerID = null){
+        if(playerID !== null){
+            this.shareMessage('goLobby','',playerID)
         }else{
-            this.sendMessage('goLobby')
+            this.shareMessage('goLobby')
         }
     }
 
@@ -307,7 +308,7 @@ class Game{
         let countdownTime = 5
         //CountDown to start game
         const countdownInterval = setInterval(() => {
-            this.sendMessage('countdown',(countdownTime))
+            this.shareMessage('countdown',(countdownTime))
             countdownTime--
             if(countdownTime < -1){
                 this.loadGame()
@@ -328,8 +329,8 @@ class Game{
 
     verifGameEnd(){
         let alivePlayers = this.totPlayers
-        for(const socketID in this.players){
-            if(this.players[socketID].lost){
+        for(const playerID in this.players){
+            if(this.players[playerID].lost){
                 alivePlayers--
             }
         }
@@ -347,7 +348,7 @@ class Game{
       }
 
     showResults(){
-        this.sendMessage('showResults', (this.scoreArray))
+        this.shareMessage('showResults', (this.scoreArray))
     }
 
 
@@ -357,19 +358,19 @@ class Game{
     =======================================
     */
 
-    sendMessage(msg,value = '',receiver = '@everyone'){
+    shareMessage(msg,value = '',receiver = '@everyone'){
+        console.log(server)
         if(receiver === '@everyone'){
-            for(const socketID in this.players){
-                this.players[socketID]["socket"].emit(msg, value)
+            for(const playerID in this.players){
+                server.users[playerID]['socket'].emit(msg, value)
             }
         }else{
-            for(const socketID in this.players){
-                if(socketID === receiver){
-                    this.players[socketID]["socket"].emit(msg,value)
+            for(const playerID in this.players){
+                if(playerID === receiver){
+                    server.users[playerID]['socket'].emit(msg, value)
                 }
             }
         }
-
     }
 }
 

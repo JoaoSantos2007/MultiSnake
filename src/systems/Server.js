@@ -1,63 +1,63 @@
-const {UserSystem} = require('./UserSystem.js')
-const {GameSystem} = require('./GameSystem.js')
+const { UserSystem } = require('./UserSystem.js')
+const { GameSystem } = require('./GameSystem.js')
+const { MatchMaking } = require('./MatchMaking.js')
 
-class Server{
-  constructor(){
-      this.game = new GameSystem,
-      this.UserSystem = new UserSystem,
-      this.allowKeys = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight']
+class Server {
+  constructor() {
+    this.gameSystem = new GameSystem,
+    this.userSystem = new UserSystem,
+    this.matchMaking = new MatchMaking,
+    this.allowKeys = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight']
   }
 
   SocketIO(socket){
-      /*
-  =================================
-        Sync User Socket ID
-  =================================
-  */
+    /*
+    =================================
+          Sync User Socket ID
+    =================================
+    */
 
-  //Set Socket ID
-  socket.on('setSocketID',(socketID) => {
-    socket.id = socketID
-    this.UserSystem.syncUser(socket)    
-  })
+    //Set Socket ID
+    socket.on('setSocketID', (socketID) => {
+      socket.id = socketID
+      this.userSystem.syncUser(socket)
+    })
 
-  //Define Socket ID in a cookie
-  socket.on('getSocketID',() => {
-    socket.emit('defineSocketID',(socket.id))
-  })
+    //Define Socket ID in a cookie
+    socket.on('getSocketID', () => {
+      socket.emit('defineSocketID', (socket.id))
+    })
 
 
-  /*
-  ================================
-        Execute User whishes
-  ================================
-  */
+    /*
+    ================================
+          Execute User whishes
+    ================================
+    */
 
-  //Enter a game
-  socket.on('play',(gameMode) =>{
-    this.matchMaking.searchGames(gameMode,socket)
-  })
+    //Enter a game
+    socket.on('play', (gameMode) => {
+      let UserID = this.userSystem.getUserID(socket.id)
+      this.matchMaking.searchGames(gameMode, UserID)
+    })
 
-  //Exit a game
-  socket.on('exitGame',(gameID) =>{
-    this.games[gameID].exitPlayer(socket.id)
-  })
-  
+    //Exit a game
+    socket.on('exitGame', (gameID) => {
+      let UserID = this.userSystem.getUserID(socket.id)
+      this.games[gameID].exitPlayer(UserID)
+    })
 
-  /*
-  ===============================
+    //
+    socket.on('changeKey', (data) => {
+      let UserID = this.userSystem.getUserID(socket.id)
+      //Verif key
+      if (this.allowKeys.includes(data.key)) {
+        this.gameSystem.games[data.gameID].changeKey(data.key,UserID)
+      }
+    })
 
-  ==============================
-  */
-  socket.on('changeKey', (data) => {
-    //Verif key
-    if (this.allowKeys.includes(data.key)) {
-      this.games[data.gameID].changeKey(data.key,socket.id)
-    }
-  })
-
-  //socket.on('disconnect', () => {})
+    //socket.on('disconnect', () => {})
   }
 }
 
-module.exports = {Server}
+module.exports = { Server }

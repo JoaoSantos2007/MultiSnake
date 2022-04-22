@@ -33,8 +33,8 @@ if(width < height){
 function setKey(key){
     if(game.id != undefined){
         socket.emit('changeKey',({
-            key: key,
-            gameID: game.id,
+            "key": key,
+            "gameID": game.id,
         }))
     }
 }

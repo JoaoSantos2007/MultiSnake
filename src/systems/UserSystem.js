@@ -6,14 +6,12 @@ class UserSystem{
         this.users = {}
     }
 
-    getUser(){
-        return(this.socketID)
-    }
-
-    findUser(){
-        for(const userSocketID in this.users.socketID){
-            console
-        }
+    getUserID(socketID){
+        for(const UserID in this.users){
+            if(this.users[UserID].socketID === socketID){
+                return(UserID)
+            }
+        }   
     }
 
     addUser(socket){
@@ -22,19 +20,17 @@ class UserSystem{
     }
 
     syncUser(socket){
-        // console.log(this.users)
-        let findUser = false
+        let foundUser = false
         
         //Verifica se já existe o usuário
         for(const usersIndex in this.users){
             if(this.users[usersIndex].socketID === socket.id){
-                findUser = true
+                foundUser = true
                 this.users[usersIndex].socket = socket
-                console.log(this.users[usersIndex].User)
             }
         }
       
-        if(findUser != true){
+        if(foundUser != true){
             this.addUser(socket)
         }
     }

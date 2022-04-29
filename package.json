@@ -10,7 +10,8 @@
   "author": "João pedro Tomaz dos Santos",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.2",
-    "socket.io": "^4.4.1"
+    "express": "^4.17.3",
+    "mysql": "^2.18.1",
+    "socket.io": "^4.5.0"
   }
 }

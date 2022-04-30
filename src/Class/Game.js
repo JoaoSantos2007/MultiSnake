@@ -223,7 +223,10 @@ class Game{
         }
         for(const playerID in this.players){
             const player = this.players[playerID]
+            const user = server.users[playerID]
             gameState["players"][playerID] = {
+                socketID: user.socketID,
+                displayName: user.displayName,
                 x: player.x,
                 y: player.y,
                 direction: player.direction,
@@ -240,8 +243,10 @@ class Game{
         const previewScoreArray = []
         for(const playerID in this.players) {
             const player = this.players[playerID]
+            const user = server.users[playerID]
             previewScoreArray.push({
-                playerID: playerID,
+                displayName: user.displayName,
+                socketID: user.socketID,
                 score: player.score
             })
         }

@@ -133,6 +133,12 @@ function renderGame(){
         for(var i = 0;i < player.positions.length;i++){
             tela.fillStyle = '#000000'
             tela.globalAlpha = 0.1
+
+            if(player.socketID == socketID){
+                tela.fillStyle = "rgb(255,0,0)"
+                tela.globalAlpha = 1
+            } 
+            
             tela.fillRect(player.positions[i][0],player.positions[i][1],10,10)
         }
     });
@@ -142,17 +148,6 @@ function renderGame(){
         tela.fillStyle = "rgb(0,255,0)"
         tela.globalAlpha = 1
         tela.fillRect(fruit.x,fruit.y,10,10)
-    });
-
-    Object.keys(game.players).forEach((index) => {
-        if(index == socketID){
-            const currentPlayer = game.players[index]
-            for(const i in currentPlayer.positions){
-                tela.fillStyle = "rgb(255,0,0)"
-                tela.globalAlpha = 1
-                tela.fillRect(currentPlayer.positions[i][0],currentPlayer.positions[i][1],10,10)
-            }
-        }
     });
 }
 
@@ -168,8 +163,8 @@ function updatePlayerScore(scoreArray,totPlayers){
 
     scoreArray.forEach((score) => {
         scoreTableInnerHTML += `
-            <tr class="${socketID === score.socketId ? 'current-player' : ''}">
-                <td class="socket-id">${score.socketId}</td>
+            <tr class="${socketID === score.socketID ? 'current-player' : ''}">
+                <td class="socket-id">${score.displayName}</td>
                 <td class="score-value">${score.score}</td>
             </tr>
         `

@@ -154,7 +154,8 @@ class MatchMaking{
 
   shareMessage(msg,value = '',list){
     for(const playerID in list){
-      server.users[list[playerID]]['socket'].emit(msg, value)
+      console.log(playerID)
+      server.users[(list[playerID])]['socket'].emit(msg, value)
     }
   }
 }

@@ -5,7 +5,6 @@ class UserSystem{
     constructor(){
         this.users = {}
     }
-
     getUserID(socketID){
         for(const UserID in this.users){
             if(this.users[UserID].socketID === socketID){
@@ -18,8 +17,25 @@ class UserSystem{
         const randomID = GenerateCode()
         this.users[randomID] = new User(socket)
     }
+    
 
     syncUser(socket){
+        const getCircularReplacer = () => {
+            const seen = new WeakSet();
+            return (key, value) => {
+              if (typeof value === "object" && value !== null) {
+                if (seen.has(value)) {
+                  return;
+                }
+                seen.add(value);
+              }
+              return value;
+            };
+          };
+
+        console.log((socket))
+        let test = JSON.stringify(socket,getCircularReplacer())
+        console.log(test.length)
         let foundUser = false
         
         //Verifica se já existe o usuário

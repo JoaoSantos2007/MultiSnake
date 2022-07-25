@@ -1,4 +1,5 @@
 function SendFiles(webApp,path) {
+    console.log(path)
     webApp.get('/', function (req, res) {
         res.sendFile(path + '/view/lobby/lobby.html')
     })
@@ -63,22 +64,6 @@ function SendFiles(webApp,path) {
     //Assets
     webApp.get('/reset.css', function (req, res) {
         res.sendFile(path + '/assets/reset.css')
-    })
-
-    webApp.get('/up-arrow.png', function (req, res) {
-        res.sendFile(path + '/assets/up-arrow.png')
-    })
-
-    webApp.get('/arrow-down.png', function (req, res) {
-        res.sendFile(path + '/assets/arrow-down.png')
-    })
-
-    webApp.get('/arrow-right.png', function (req, res) {
-        res.sendFile(path + '/assets/arrow-right.png')
-    })
-
-    webApp.get('/left-arrow.png', function (req, res) {
-        res.sendFile(path + '/assets/left-arrow.png')
     })
 
     webApp.get('/snake.png', function (req, res) {
@@ -146,6 +131,17 @@ function SendFiles(webApp,path) {
     webApp.get('/create.png', function (req, res) {
         res.sendFile(path + '/assets/create.png')
     })
+
+    webApp.get('/showResults.js', function (req, res) {
+        res.sendFile(path + '/scripts/showResults.js')
+    })
+
+    webApp.get('/countDown.js', function (req, res) {
+        res.sendFile(path + '/scripts/countDown.js')
+    })
+
+
+    
     
 }
 

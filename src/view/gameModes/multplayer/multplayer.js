@@ -1,4 +1,6 @@
-let game = {}
+let game = {
+    id: null
+}
 
 //Obter Tecla pressionada
 document.onkeydown = getKey
@@ -25,9 +27,11 @@ if(width < height){
     canvas.style.height = `${(width - 3) * 0.764171123}px`
 }
 
-/* ************** */
-/* Enviar Eventos */
-/* ************** */
+/*
+===============================
+        Enviar Eventos
+===============================
+*/
 
 //Enviar tecla pressionada para servidor
 function setKey(key){
@@ -45,26 +49,20 @@ function exitGame(){
 }
 
 
-/* ************** */
-/* Receber Eventos */
-/* ************** */
+/*
+==============================
+        Receber Eventos
+==============================
+*/
 
 socket.on('countdown',(time) => {
-    window.document.getElementById('countdown').style.display = 'block'
-    
-    if(time < 0){
-        window.document.getElementById('countdown').style.display = 'none'
-    }else{    
-        const timeIMG = window.document.getElementById('timeIMG')
-        timeIMG.setAttribute('src',`${String(time)}.png`)
-    }
+    countDown(time)
 })
 
 //Receber Estado do jogo
 socket.on('gameState', (gameState) => {
     game = gameState
-    console.log(gameState)
-    limparTela()
+    
     requestAnimationFrame(renderGame)
 })
 
@@ -80,11 +78,7 @@ socket.on('updateScore', (updatedScore) =>{
 })
 
 socket.on('showResults', (scoreList)=>{
-    console.log('fim !',scoreList)
-    window.document.getElementById('results').style.display = 'block'
-    window.document.getElementById('pFirst').innerText = scoreList[0].socketId
-    window.document.getElementById('pSecond').innerText = scoreList[1].socketId
-    window.document.getElementById('pThird').innerText = scoreList[2].socketId
+    showResults(scoreList)
 })
 
 //Rodar Audios do jogo
@@ -125,6 +119,8 @@ standard_screen()
 //Renderizar o jogo
 function renderGame(){
 
+    limparTela()
+
     tela.fillStyle = 'rgb(110, 180, 255)'
     tela.fillRect(0,0,300,150)
 
@@ -149,33 +145,4 @@ function renderGame(){
         tela.globalAlpha = 1
         tela.fillRect(fruit.x,fruit.y,10,10)
     });
-}
-
-//Atualizar a tabela de pontos e jogadores no jogo
-function updatePlayerScore(scoreArray,totPlayers){
-    
-    let scoreTableInnerHTML
-
-    scoreTableInnerHTML = `<tr class="header">
-        <td>Top 10 players</td>
-        <td>Score</td>
-    </tr>`
-
-    scoreArray.forEach((score) => {
-        scoreTableInnerHTML += `
-            <tr class="${socketID === score.socketID ? 'current-player' : ''}">
-                <td class="socket-id">${score.displayName}</td>
-                <td class="score-value">${score.score}</td>
-            </tr>
-        `
-    })
-
-    scoreTableInnerHTML += `
-        <tr class="footer">
-            <td>Total de jogadores</td>
-            <td align="right">${totPlayers}</td>
-        </tr>
-    `
-
-    window.document.getElementById("scoreTable").innerHTML = scoreTableInnerHTML
 }

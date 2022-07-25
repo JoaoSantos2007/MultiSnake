@@ -1,4 +1,4 @@
-function GenerateCode(length = 20) {
+function GenerateCode(length = 25) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;

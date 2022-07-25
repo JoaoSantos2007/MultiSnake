@@ -2,7 +2,6 @@
 const express = require('express')
 const webApp = express()
 const webServer = require('http').createServer(webApp)
-const io = require('socket.io')(webServer)
 
 
 //Print server working 

@@ -12,5 +12,3 @@ socket.on('logged', (array) =>{
     localStorage.setItem("password", array[1]);
     // window.location.href = '/'
 })
-
-console.log(localStorage.getItem("email"))
